@@ -17,10 +17,16 @@ $ npm install
 
 Configure information inside the `config.example.json` be sure to rename it to `config.json` or simply run `mv config.example.json config.json` (macOS & Windows) when you're done.
 
-Run After Setup:
+Example curl with auth:
 
-```sh
-$ node index
+```
+$  curl -x http://104.236.214.154:3128/ --proxy-user vrztdnh:xjerkurbgnqzvl -L supremenewyork.com
+```
+
+Example curl without auth:
+
+```
+$  curl -x http://104.236.214.154:3128/ -L supremenewyork.com
 ```
 
 # Config
