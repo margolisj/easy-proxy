@@ -43,6 +43,7 @@ let main = () => {
       console.error('Unknown provider');
       process.exit();
     }
+
   });
 };
 
@@ -118,7 +119,7 @@ let createDroplet = async (proxy) => {
     tags: [ 'prox' ]
   };
 
-  console.log(`${dropletName} | Creating droplet`);
+  console.log(`${dropletName} | Creating droplet on ${config.digital_ocean.region}`);
 
   try {
     await api.dropletsCreate(dropletData);
@@ -186,7 +187,7 @@ let proxySetup = (dropletName, id, host, username, password, retries=0) => {
 
     // No Auth: https://pastebin.com/raw/jbEvVUkw
     // Auth: https://raw.githubusercontent.com/dzt/easy-proxy/master/confg/squid.conf
-
+    
     // No Auth:
     let conf = 'https://gist.githubusercontent.com/margolisj/ff35ff91df747e5917174d7cca0cf769/raw/4f7296169a9b081998103fdedb41cc2e9281c648/conf';
     /// Auth:

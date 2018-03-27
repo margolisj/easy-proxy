@@ -41,21 +41,3 @@ $  curl -x http://104.236.214.154:3128/ -L supremenewyork.com
   * **config.digital_ocean.rsa_id_path** {  _String_ }: The path to your RSA private key, this may vary depending on what operating system you're on by default if you're using `ssh-keygen -t rsa` to generate RSA keys on macOS or Linux then your RSA private key path should look like this `/Users/john/.ssh/id_rsa` or `/home/john/.ssh/id_rsa`. But if you're on Windows, assuming that you're using PuTTYgen to generate your private/public key then you know where the location of you're private key is (usually with the file extension `.ppk`) under the `rsa_id_path` field on Windows yours should look like this `C:\\Users\\Billy\\Documents\\ssh-private.ppk` depending on where you saved your private key.
   * **config.digital_ocean.ssh_passphrase** {  _String_ }: If you did not set a passphrase to your SSH key then you can set this value as `null` otherwise you should set this value to the passphrase if present.
 
-### Who
-
-Written by <a href="http://petersoboyejo.com/">@dzt</a>, made better by you.
-
-
-## License
-
-```
-The MIT License (MIT)
-
-Copyright (c) 2017 Peter Soboyejo <http://petersoboyejo.com/>
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-```
