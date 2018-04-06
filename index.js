@@ -27,9 +27,9 @@ let main = () => {
 
     proxyCount = parseInt(result.count);
     console.log(`Creating proxies | ${proxyCount}`);
+    let proxyData = getRandomProxyData(proxyCount);
 
-    if (config.provider = 'digital_ocean') {
-      let proxyData = getRandomProxyData(proxyCount);
+    if (config.provider === 'digital_ocean') {
       let createPromises = proxyData.map((proxy) => createDroplet(proxy));
       try {
         let createdProxies = await Promise.all(createPromises);
@@ -38,6 +38,8 @@ let main = () => {
       } catch (error) {
         console.log(error);
       }
+
+    } else if (config.provider === 'linode') {
 
     } else {
       console.error('Unknown provider');
@@ -49,33 +51,7 @@ let main = () => {
 
 main();
 
-let printProxiesSupreme = (createdProxies) => {
-  createdProxies.forEach(proxy => {
-    console.log(`
-    curl -x http://${proxy.IP}:${proxy.Port} --proxy-user ${proxy.Username}:${proxy.Password} -L http://www.supremenewyork.com/mobile_stock.json -H "User-Agent: Mozilla/5.0 (iPhone; CPU iPhone OS 11_0_3 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Mobile/15A432"
-    {
-        'http': 'http://${proxy.Username}:${proxy.Password}@${proxy.IP}:${proxy.Port}/',
-        'https': 'http://${proxy.Username}:${proxy.Password}@${proxy.IP}:${proxy.Port}/'
-    }`);
-  });
-};
 
-let printProxiesAdidas = (createdProxies) => {
-  createdProxies.forEach(proxy => {
-    console.log(`
-    {
-      ip_port: '${proxy.IP}:${proxy.Port}',
-      user: '${proxy.Username}',
-      pass: '${proxy.Password}'
-    },`);
-  });
-};
-
-let printProxiesTaskBot = (createdProxies) => {
-  createdProxies.forEach(proxy => {
-    console.log(`${proxy.IP}:${proxy.Port}`);
-  });
-};
 
 let getRandomProxyData = (proxyCount) => {
   let proxyData = [];
@@ -116,7 +92,7 @@ let createDroplet = async (proxy) => {
     user_data: null,
     private_networking: false,
     volumes: null,
-    tags: [ 'prox' ]
+    tags: [ 'easy' ]
   };
 
   console.log(`${dropletName} | Creating droplet on ${config.digital_ocean.region}`);
@@ -175,8 +151,13 @@ let waitForSsh = (host) => {
   });
 };
 
+const configNoAuth = 'https://gist.githubusercontent.com/margolisj/ff35ff91df747e5917174d7cca0cf769/raw/4f7296169a9b081998103fdedb41cc2e9281c648/conf';
+const configAuth = 'https://gist.githubusercontent.com/margolisj/8b2cfd84f8ad7d3ddf1743c8046fe680/raw/7a57321da876cca76ae8e19e76fdf1264aad6cf9/squid_conf_with_auth.conf';
+
+
 let proxySetup = (dropletName, id, host, username, password, retries=0) => {
   return new Promise((resolve, reject) => {
+
     let ssh = new SSH({
       host: host,
       user: 'root',
@@ -185,13 +166,8 @@ let proxySetup = (dropletName, id, host, username, password, retries=0) => {
       timeout: 99999
     });
 
-    // No Auth: https://pastebin.com/raw/jbEvVUkw
-    // Auth: https://raw.githubusercontent.com/dzt/easy-proxy/master/confg/squid.conf
-    
-    // No Auth:
-    let conf = 'https://gist.githubusercontent.com/margolisj/ff35ff91df747e5917174d7cca0cf769/raw/4f7296169a9b081998103fdedb41cc2e9281c648/conf';
-    /// Auth:
-    //let conf = 'https://gist.githubusercontent.com/margolisj/8b2cfd84f8ad7d3ddf1743c8046fe680/raw/7a57321da876cca76ae8e19e76fdf1264aad6cf9/squid_conf_with_auth.conf';
+    const conf = config.auth ? configAuth : configNoAuth;
+
     ssh.exec(
       `yum install squid httpd-tools wget -y &&
       touch /etc/squid/passwd &&
@@ -219,17 +195,49 @@ let proxySetup = (dropletName, id, host, username, password, retries=0) => {
           });
         },
         fail: (err) => {
-          console.log(`${dropletName} | Unable to execueted code on server ${host}`)
+          console.log(`${dropletName} | Unable to execuete code on server ${host}`)
           console.log(`${dropletName} | Retry ${retries - 1}`);
+
           if (retries > 0) {
-            // let newArgs = [...args];
-            // newArgs[newArgs.length - 1] = retries - 1;
-            // return proxySetup(...newArgs);
-            return resolve(proxySetup(dropletName, id, host, username, password, retries - 1));
+            return resolve(
+              proxySetup(
+                dropletName, id, host, username, password, retries - 1
+              )
+            );
           } else {
             reject(err);
           }
         }
     });
+  });
+};
+
+let printProxiesSupreme = (createdProxies) => {
+  createdProxies.forEach(proxy => {
+    console.log(`
+    curl -x http://${proxy.IP}:${proxy.Port} --proxy-user ${proxy.Username}:${proxy.Password} -L http://www.supremenewyork.com/mobile_stock.json -H "User-Agent: Mozilla/5.0 (iPhone; CPU iPhone OS 11_0_3 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Mobile/15A432"
+    {
+        'http': 'http://${proxy.Username}:${proxy.Password}@${proxy.IP}:${proxy.Port}/',
+        'https': 'http://${proxy.Username}:${proxy.Password}@${proxy.IP}:${proxy.Port}/'
+    }`);
+  });
+};
+
+let printProxiesAdidas = (createdProxies) => {
+  createdProxies.forEach(proxy => {
+    console.log(`
+    {
+      ip_port: '${proxy.IP}:${proxy.Port}',
+      user: '${proxy.Username}',
+      pass: '${proxy.Password}'
+    },`);
+  });
+};
+
+let printProxiesTaskBot = (createdProxies) => {
+  createdProxies.forEach(proxy => {
+    // console.log(`${proxy.Username}:${proxy.Password}@${proxy.IP}:${proxy.Port}`);
+    console.log(`${proxy.IP}:${proxy.Port}`);
+
   });
 };
