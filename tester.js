@@ -22,10 +22,10 @@ let main = () => {
 
     rp.get({
       url: url,
-      agentOptions: {
-        socksHost: host, // Defaults to 'localhost'.
-        socksPort: port // Defaults to 1080.
-      }
+      // agentOptions: {
+      //   socksHost: host, // Defaults to 'localhost'.
+      //   socksPort: port // Defaults to 1080.
+      // }
     }).then(() => {
       console.log(`success for ${proxy}`);
     }).error((err) => {
