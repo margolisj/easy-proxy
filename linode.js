@@ -3,21 +3,19 @@ const config = require('./config');
 const randomstring = require('randomstring');
 const prompt = require('prompt');
 const async = require('async');
-// const SSH = require('simple-ssh');
 const node_ssh = require('node-ssh');
 const fs = require('fs');
 const waitPort = require('wait-port');
 
-const API_KEY = '***REMOVED***';
+const API_KEY = config.linode.apiKey;
 const lnc = new Linode(API_KEY);
 
 
-const tempPass = '"UssuvYM75"VhME]WP8;"4}h]ef;';
-
 let printProxiesSupreme = (createdProxies) => {
+  // curl -x http://${proxy.IP}:${proxy.Port} --proxy-user ${proxy.Username}:${proxy.Password} -L http://www.supremenewyork.com/mobile_stock.json -H "User-Agent: Mozilla/5.0 (iPhone; CPU iPhone OS 11_0_3 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Mobile/15A432"
+
   createdProxies.forEach(proxy => {
     console.log(`
-    curl -x http://${proxy.IP}:${proxy.Port} --proxy-user ${proxy.Username}:${proxy.Password} -L http://www.supremenewyork.com/mobile_stock.json -H "User-Agent: Mozilla/5.0 (iPhone; CPU iPhone OS 11_0_3 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Mobile/15A432"
     {
         'http': 'http://${proxy.Username}:${proxy.Password}@${proxy.IP}:${proxy.Port}/',
         'https': 'http://${proxy.Username}:${proxy.Password}@${proxy.IP}:${proxy.Port}/'
@@ -74,9 +72,8 @@ let createInstance = async () => {
       'region': region,
       'type': instanceType,
       'image': imageType,
-      'root_pass': tempPass
+      'root_pass': config.linode.sshPassphrase
     });
-    console.log(createResponse);
 
     return {
       id: createResponse['id'],
@@ -360,34 +357,19 @@ let waitForCreation = async (dropletName) => {
   return true;
 };
 
-let waitForSsh = (host) => {
-  return new Promise((resolve, reject) => {
-    waitPort({
-      host: host,
-      port: 22,
-      output: 'silent'
-    }).then((open) => {
-      if (open) {
-        // Adding 8 seconds b/c it can still timeout
-        setTimeout(resolve(), 8000);
-      } else console.log(`${host} | The port did not open before the timeout...`);
-    }).catch(err => reject(err));
-  });
-};
-
 const configNoAuth = 'https://gist.githubusercontent.com/margolisj/ff35ff91df747e5917174d7cca0cf769/raw/4f7296169a9b081998103fdedb41cc2e9281c648/conf';
 const configAuth = 'https://gist.githubusercontent.com/margolisj/8b2cfd84f8ad7d3ddf1743c8046fe680/raw/7a57321da876cca76ae8e19e76fdf1264aad6cf9/squid_conf_with_auth.conf';
 
-let deleteDroplets = async () => {
+let deleteInstances = async () => {
     // Delete droplets
     let res = await lnc.getLinodeInstances();
     let nodes = res.data;
     let deletePromises = nodes.map(async (node) => await lnc.removeLinodeInstances(node.id));
     let results = await Promise.all(deletePromises);
     console.log();
-}
+};
 
-let main = async () => {
+let makeInstance = async () => {
   try {
     let {proxyUsername, proxyPassword, port} = getRandomProxyData();
     // // Create and wait for running
@@ -395,7 +377,7 @@ let main = async () => {
     console.log(`Created id: ${id} with ip: ${ip}`);
     let success = await waitForCreation(id);
 
-    let password = tempPass;
+    let password = config.linode.sshPassphrase;
 
     // let ip = '45.79.128.64';
     let ssh = new node_ssh();
@@ -441,5 +423,30 @@ let main = async () => {
   }
 };
 
-// main();
-deleteDroplets();
+let main = async () => {
+  prompt.get([{
+    name: 'count',
+    required: true,
+    description: 'Number of proxies to make'
+  }], async (err, result) => {
+    if (err) {
+      process.exit();
+    }
+
+    let proxyCount = parseInt(result.count);
+    console.log(`Creating proxies | ${proxyCount}`);
+
+    let createPromises = Array.from(Array(proxyCount))
+                              .forEach(async () => await makeInstance());
+
+    try {
+      let createdProxies = await Promise.all(createPromises);
+      console.table(createdProxies);
+    } catch (error) {
+      console.log(error);
+    }
+
+  });
+};
+main();
+// deleteInstances();

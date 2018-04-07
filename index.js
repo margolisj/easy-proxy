@@ -25,7 +25,7 @@ let main = () => {
       process.exit();
     }
 
-    proxyCount = parseInt(result.count);
+    let proxyCount = parseInt(result.count);
     console.log(`Creating proxies | ${proxyCount}`);
     let proxyData = getRandomProxyData(proxyCount);
 
