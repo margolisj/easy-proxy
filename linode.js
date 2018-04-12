@@ -7,8 +7,7 @@ const node_ssh = require('node-ssh');
 const fs = require('fs');
 const waitPort = require('wait-port');
 
-const API_KEY = config.linode.apiKey;
-const lnc = new Linode(API_KEY);
+const lnc = new Linode(config.linode.apiKey);
 
 
 let printProxiesSupreme = (createdProxies) => {
@@ -118,192 +117,7 @@ let getTypes = async () => {
   return await lnc.getLinodeTypes();
 };
 
-/*
-{ data:
-   [ { id: 'linode/slackware13.37',
-       size: 600,
-       description: null,
-       created: '2011-06-05T19:11:59',
-       deprecated: true,
-       vendor: 'Slackware',
-       label: 'Slackware 13.37',
-       created_by: 'linode',
-       type: 'manual',
-       is_public: true },
-     { id: 'linode/slackware14.1',
-       size: 1000,
-       description: null,
-       created: '2013-11-25T16:11:02',
-       deprecated: true,
-       vendor: 'Slackware',
-       label: 'Slackware 14.1',
-       created_by: 'linode',
-       type: 'manual',
-       is_public: true },
-     { id: 'linode/ubuntu14.04lts',
-       size: 1500,
-       description: null,
-       created: '2014-04-17T19:42:07',
-       deprecated: true,
-       vendor: 'Ubuntu',
-       label: 'Ubuntu 14.04 LTS',
-       created_by: 'linode',
-       type: 'manual',
-       is_public: true },
-     { id: 'linode/centos6.8',
-       size: 1024,
-       description: null,
-       created: '2014-04-28T19:19:34',
-       deprecated: true,
-       vendor: 'CentOS',
-       label: 'CentOS 6.8',
-       created_by: 'linode',
-       type: 'manual',
-       is_public: true },
-     { id: 'linode/centos7',
-       size: 1500,
-       description: null,
-       created: '2014-07-08T14:07:21',
-       deprecated: false,
-       vendor: 'CentOS',
-       label: 'CentOS 7',
-       created_by: 'linode',
-       type: 'manual',
-       is_public: true },
-     { id: 'linode/debian7',
-       size: 600,
-       description: null,
-       created: '2014-09-24T17:59:32',
-       deprecated: true,
-       vendor: 'Debian',
-       label: 'Debian 7',
-       created_by: 'linode',
-       type: 'manual',
-       is_public: true },
-     { id: 'linode/debian8',
-       size: 1024,
-       description: '',
-       created: '2015-04-27T20:26:41',
-       deprecated: false,
-       vendor: 'Debian',
-       label: 'Debian 8',
-       created_by: 'linode',
-       type: 'manual',
-       is_public: true },
-     { id: 'linode/ubuntu16.04lts',
-       size: 1024,
-       description: null,
-       created: '2016-04-22T18:11:29',
-       deprecated: false,
-       vendor: 'Ubuntu',
-       label: 'Ubuntu 16.04 LTS',
-       created_by: 'linode',
-       type: 'manual',
-       is_public: true },
-     { id: 'linode/arch',
-       size: 1500,
-       description: null,
-       created: '2016-06-13T20:31:34',
-       deprecated: false,
-       vendor: 'Arch',
-       label: 'Arch 2018.02.05',
-       created_by: 'linode',
-       type: 'manual',
-       is_public: true },
-     { id: 'linode/slackware14.2',
-       size: 6000,
-       description: null,
-       created: '2016-10-13T13:14:34',
-       deprecated: false,
-       vendor: 'Slackware',
-       label: 'Slackware 14.2',
-       created_by: 'linode',
-       type: 'manual',
-       is_public: true },
-     { id: 'linode/gentoo2018.01.15',
-       size: 5500,
-       description: null,
-       created: '2016-10-25T17:31:25',
-       deprecated: false,
-       vendor: 'Gentoo',
-       label: 'Gentoo 2018-01-15',
-       created_by: 'linode',
-       type: 'manual',
-       is_public: true },
-     { id: 'linode/opensuseleap42.2',
-       size: 1700,
-       description: null,
-       created: '2016-11-17T19:52:54',
-       deprecated: true,
-       vendor: 'openSUSE',
-       label: 'openSUSE Leap 42.2',
-       created_by: 'linode',
-       type: 'manual',
-       is_public: true },
-     { id: 'linode/containerlinux',
-       size: 5000,
-       description: null,
-       created: '2017-06-06T20:44:00',
-       deprecated: false,
-       vendor: 'CoreOS',
-       label: 'CoreOS Container Linux',
-       created_by: 'linode',
-       type: 'manual',
-       is_public: true },
-     { id: 'linode/debian9',
-       size: 1250,
-       description: null,
-       created: '2017-06-16T20:02:29',
-       deprecated: false,
-       vendor: 'Debian',
-       label: 'Debian 9',
-       created_by: 'linode',
-       type: 'manual',
-       is_public: true },
-     { id: 'linode/fedora26',
-       size: 1500,
-       description: null,
-       created: '2017-07-12T12:23:15',
-       deprecated: false,
-       vendor: 'Fedora',
-       label: 'Fedora 26',
-       created_by: 'linode',
-       type: 'manual',
-       is_public: true },
-     { id: 'linode/opensuse42.3',
-       size: 1900,
-       description: null,
-       created: '2017-07-27T18:03:05',
-       deprecated: false,
-       vendor: 'openSUSE',
-       label: 'openSUSE Leap 42.3',
-       created_by: 'linode',
-       type: 'manual',
-       is_public: true },
-     { id: 'linode/ubuntu17.10',
-       size: 2500,
-       description: null,
-       created: '2017-10-19T20:19:16',
-       deprecated: false,
-       vendor: 'Ubuntu',
-       label: 'Ubuntu 17.10',
-       created_by: 'linode',
-       type: 'manual',
-       is_public: true },
-     { id: 'linode/fedora27',
-       size: 1900,
-       description: null,
-       created: '2017-12-14T21:06:30',
-       deprecated: false,
-       vendor: 'Fedora',
-       label: 'Fedora 27',
-       created_by: 'linode',
-       type: 'manual',
-       is_public: true } ],
-  page: 1,
-  pages: 1,
-  results: 18 }
-  */
+
 let getDistributions = async () => {
   try {
     return await lnc.getLinodeDistributions();
@@ -360,14 +174,7 @@ let waitForCreation = async (dropletName) => {
 const configNoAuth = 'https://gist.githubusercontent.com/margolisj/ff35ff91df747e5917174d7cca0cf769/raw/4f7296169a9b081998103fdedb41cc2e9281c648/conf';
 const configAuth = 'https://gist.githubusercontent.com/margolisj/8b2cfd84f8ad7d3ddf1743c8046fe680/raw/7a57321da876cca76ae8e19e76fdf1264aad6cf9/squid_conf_with_auth.conf';
 
-let deleteInstances = async () => {
-    // Delete droplets
-    let res = await lnc.getLinodeInstances();
-    let nodes = res.data;
-    let deletePromises = nodes.map(async (node) => await lnc.removeLinodeInstances(node.id));
-    let results = await Promise.all(deletePromises);
-    console.log();
-};
+
 
 let makeInstance = async () => {
   try {
@@ -379,7 +186,6 @@ let makeInstance = async () => {
 
     let password = config.linode.sshPassphrase;
 
-    // let ip = '45.79.128.64';
     let ssh = new node_ssh();
     await ssh.connect({
       host: ip,
@@ -406,17 +212,19 @@ let makeInstance = async () => {
       iptables -I INPUT -p tcp --dport 3128 -j ACCEPT &&
       iptables-save`, { cwd:'~' }
     );
-    console.log(result);
+    // console.log(result);
+    console.log(`Finished setup id: ${id} with ip: ${ip}`);
 
     // TODO: Different shape if not auth
-    let proxies = [ {
+    let proxy = {
       IP: ip,
       Port: 3128,
       Username: proxyUsername,
       Password: proxyPassword
-    }];
+    };
 
-    printProxiesSupreme(proxies);
+    // console.log(proxy);
+    return proxy;
 
   } catch (err) {
     console.log(err);
@@ -437,16 +245,19 @@ let main = async () => {
     console.log(`Creating proxies | ${proxyCount}`);
 
     let createPromises = Array.from(Array(proxyCount))
-                              .forEach(async () => await makeInstance());
+                              .map(async () =>  await makeInstance());
 
     try {
       let createdProxies = await Promise.all(createPromises);
+      // console.log(createdProxies);
       console.table(createdProxies);
+      printProxiesTaskBot(createdProxies);
+      console.log('Completed');
     } catch (error) {
       console.log(error);
     }
 
   });
 };
+
 main();
-// deleteInstances();
