@@ -35,7 +35,8 @@ let printProxiesAdidas = (createdProxies) => {
 
 let printProxiesTaskBot = (createdProxies) => {
   createdProxies.forEach(proxy => {
-    console.log(`${proxy.IP}:${proxy.Port}`);
+    if (proxy.IP && proxy.Port)
+      console.log(`${proxy.IP}:${proxy.Port}`);
   });
 };
 
@@ -62,7 +63,7 @@ updated: '2018-04-05T04:22:19',
   ipv4: [ '45.79.140.169' ]
   */
 let createInstance = async () => {
-  let region = 'us-east';
+  let region = 'us-east'; //  'eu-west'
   let instanceType = 'g5-nanode-1';
   let imageType = 'linode/centos7';
   try {
@@ -175,8 +176,7 @@ const configNoAuth = 'https://gist.githubusercontent.com/margolisj/ff35ff91df747
 const configAuth = 'https://gist.githubusercontent.com/margolisj/8b2cfd84f8ad7d3ddf1743c8046fe680/raw/7a57321da876cca76ae8e19e76fdf1264aad6cf9/squid_conf_with_auth.conf';
 
 
-
-let makeInstance = async () => {
+let makeInstance = async (retries = 0) => {
   try {
     let {proxyUsername, proxyPassword, port} = getRandomProxyData();
     // // Create and wait for running
@@ -250,7 +250,7 @@ let main = async () => {
     try {
       let createdProxies = await Promise.all(createPromises);
       // console.log(createdProxies);
-      console.table(createdProxies);
+      // console.table(createdProxies);
       printProxiesTaskBot(createdProxies);
       console.log('Completed');
     } catch (error) {
