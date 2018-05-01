@@ -223,7 +223,7 @@ let makeInstance = async (retries = 0) => {
       Password: proxyPassword
     };
 
-    // console.log(proxy);
+    console.log(proxy);
     return proxy;
 
   } catch (err) {
