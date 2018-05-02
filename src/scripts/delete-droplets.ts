@@ -1,3 +1,5 @@
+export {};
+
 let config = require('../config');
 let DigitalOcean = require('do-wrapper'),
     api = new DigitalOcean(config.digital_ocean.api_key, '9999');

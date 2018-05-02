@@ -1,3 +1,5 @@
+export {};
+
 const Linode = require('linode-api-node');
 const config = require('./config');
 const randomstring = require('randomstring');
@@ -201,7 +203,7 @@ let makeInstance = async (retries = 0) => {
     return proxy;
 
   } catch (err) {
-    console.log(`${ip}: ${err}`);
+    console.log(`${err}`);
 
     return {
       IP: '',

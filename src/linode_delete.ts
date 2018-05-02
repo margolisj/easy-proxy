@@ -1,3 +1,5 @@
+export {};
+
 const Linode = require('linode-api-node');
 const config = require('./config');
 

@@ -1,10 +1,12 @@
+export {};
+
 var config = require('../config');
 var DigitalOcean = require('do-wrapper'),
     api = new DigitalOcean(config.digital_ocean.api_key, '9999');
 
-api.accountGetKeys({}, function(err, resp, body) {
+api.regionsGetAll({}, function(err, resp, body) {
   if (err) {
     console.log(err)
   }
-  console.log(body)
+  console.log(JSON.stringify(body, null, 4));
 });
