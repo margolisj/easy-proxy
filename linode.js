@@ -6,39 +6,10 @@ const async = require('async');
 const node_ssh = require('node-ssh');
 const fs = require('fs');
 const waitPort = require('wait-port');
+const utils = require('./utils');
+
 
 const lnc = new Linode(config.linode.apiKey);
-
-
-let printProxiesSupreme = (createdProxies) => {
-  // curl -x http://${proxy.IP}:${proxy.Port} --proxy-user ${proxy.Username}:${proxy.Password} -L http://www.supremenewyork.com/mobile_stock.json -H "User-Agent: Mozilla/5.0 (iPhone; CPU iPhone OS 11_0_3 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Mobile/15A432"
-
-  createdProxies.forEach(proxy => {
-    console.log(`
-    {
-        'http': 'http://${proxy.Username}:${proxy.Password}@${proxy.IP}:${proxy.Port}/',
-        'https': 'http://${proxy.Username}:${proxy.Password}@${proxy.IP}:${proxy.Port}/'
-    }`);
-  });
-};
-
-let printProxiesAdidas = (createdProxies) => {
-  createdProxies.forEach(proxy => {
-    console.log(`
-    {
-      ip_port: '${proxy.IP}:${proxy.Port}',
-      user: '${proxy.Username}',
-      pass: '${proxy.Password}'
-    },`);
-  });
-};
-
-let printProxiesTaskBot = (createdProxies) => {
-  createdProxies.forEach(proxy => {
-    if (proxy.IP && proxy.Port)
-      console.log(`${proxy.IP}:${proxy.Port}`);
-  });
-};
 
 /*
 updated: '2018-04-05T04:22:19',
@@ -62,10 +33,11 @@ updated: '2018-04-05T04:22:19',
   hypervisor: 'kvm',
   ipv4: [ '45.79.140.169' ]
   */
-let createInstance = async () => {
+let createInstance = async (retries = 3) => {
   let region = 'us-east'; //  'eu-west'
   let instanceType = 'g5-nanode-1';
   let imageType = 'linode/centos7';
+
   try {
     // Create node
     let createResponse = await lnc.createLinodeInstance({
@@ -81,7 +53,12 @@ let createInstance = async () => {
     };
   } catch (err) {
     console.log(err['message']);
-    return null;
+
+    if (retries == 0) {
+      return null
+    };
+
+    return createInstance(retries - 1);
   }
 
 };
@@ -149,11 +126,6 @@ let getRandomProxyData = () => {
   };
 };
 
-let delay = (ms) => {
-  return new Promise((resolve) => {
-    setTimeout(resolve, ms);
-  });
-}
 
 let waitForCreation = async (dropletName) => {
   var status = '';
@@ -162,13 +134,15 @@ let waitForCreation = async (dropletName) => {
       let response =  await lnc.getLinodeInstances(dropletName);
       status = response.status;
       console.log(status);
-      await delay(5000);
+      await utils.delay(5000);
     } catch (err) {
       console.log(err);
       return false;
     }
   }
 
+  // Added for ssh issue
+  await utils.delay(5000);
   return true;
 };
 
@@ -200,7 +174,7 @@ let makeInstance = async (retries = 0) => {
         }
     });
 
-    const conf = configNoAuth;
+    const conf = configAuth;
 
     let result = await ssh.execCommand(
       `yum install squid httpd-tools wget -y &&
@@ -227,7 +201,15 @@ let makeInstance = async (retries = 0) => {
     return proxy;
 
   } catch (err) {
-    console.log(err);
+    console.log(`${ip}: ${err}`);
+
+    return {
+      IP: '',
+      Port: '',
+      Username: '',
+      Password: ''
+    };
+
   }
 };
 
@@ -249,9 +231,9 @@ let main = async () => {
 
     try {
       let createdProxies = await Promise.all(createPromises);
-      // console.log(createdProxies);
+      console.log(createdProxies);
       // console.table(createdProxies);
-      printProxiesTaskBot(createdProxies);
+      utils.printProxiesColon(createdProxies);
       console.log('Completed');
     } catch (error) {
       console.log(error);

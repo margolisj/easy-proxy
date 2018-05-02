@@ -7,7 +7,7 @@ let main = async () => {
 
   let nodes = await lnc.getLinodeInstances();
   let ids = nodes.data.map(n => n.id);
-  console.log(ids);
+  console.log(`Deleting ${ids.length} nodes: ${ids}`);
 
   let createPromises = ids.map(async (id) =>  await lnc.removeLinodeInstances(id));
 
