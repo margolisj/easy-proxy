@@ -1,3 +1,5 @@
+export {};
+
 let rp = require('request-promise-native');
 
 let url = 'http://www.nike.com/launch/';

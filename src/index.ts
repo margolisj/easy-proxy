@@ -1,3 +1,5 @@
+export {};
+
 const config = require('./config');
 const randomstring = require('randomstring');
 const prompt = require('prompt');
@@ -11,7 +13,7 @@ const utils = require('./utils');
 require('console.table');
 
 
-api = new DigitalOcean(config.digital_ocean.api_key, '9999');
+const api = new DigitalOcean(config.digital_ocean.api_key, '9999');
 
 process.on('unhandledRejection', (reason, p) => {
   console.log('Unhandled Rejection at: Promise', p, 'reason:', reason);
@@ -105,11 +107,11 @@ let createDroplet = async (proxy) => {
     console.log(`${dropletName} | Waiting for droplet to initialize`);
     let droplet = await waitForCreation(dropletName);
     console.log(`${dropletName} | Droplet created`);
-    let host = droplet.networks.v4[0].ip_address;
+    let host = droplet['networks'].v4[0].ip_address;
     await waitForSsh(host);
     console.log(`${dropletName} | Droplet connected to`);
     console.log(`${dropletName} | Setting up proxy ${host} ${proxy.username}:${proxy.password}`);
-    return proxySetup(dropletName, droplet.id, host, proxy.username, proxy.password, 3);
+    return proxySetup(dropletName, droplet['id'], host, proxy.username, proxy.password, 3);
   } catch(err) {
     console.log(err);
   }
@@ -143,7 +145,7 @@ let waitForSsh = (host) => {
     }).then((open) => {
       if (open) {
         // Adding 8 seconds b/c it can still time out wtf
-        setTimeout(resolve(), 8000);
+        setTimeout(resolve, 8000);
       } else console.log(`${host} | The port did not open before the timeout...`);
     }).catch(err => reject(err));
   });

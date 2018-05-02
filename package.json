@@ -4,10 +4,21 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "run": "node index.js"
+    "test": "mocha -r ts-node/register src/**/*.spec.ts",
+    "start": "ts-node src/index.ts",
+    "monitor": "ts-node src/monitor.ts",
+    "clean": "rm -rf dist/*",
+    "build": "tsc"
   },
   "author": "",
   "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^10.0.2",
+    "@types/request": "^2.47.0",
+    "@types/request-promise-native": "^1.0.14",
+    "ts-node": "^5.0.1",
+    "typescript": "^2.7.2"
+  },
   "dependencies": {
     "console.table": "^0.10.0",
     "do-wrapper": "^3.11.1",
