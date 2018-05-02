@@ -3,11 +3,7 @@ let rp = require('request-promise-native');
 let url = 'http://www.nike.com/launch/';
 
 let proxies = [
-  '45.79.190.169:3128',
-  // '45.79.135.188:3128',
-  // '45.79.165.178:3128',
-  // '45.79.187.51:3128',
-  // '45.79.150.230:3128',
+
 ];
 
 let main = async () => {

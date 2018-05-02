@@ -6,7 +6,10 @@ const SSH = require('simple-ssh');
 const DigitalOcean = require('do-wrapper');
 const fs = require('fs');
 const waitPort = require('wait-port');
+const utils = require('./utils');
+
 require('console.table');
+
 
 api = new DigitalOcean(config.digital_ocean.api_key, '9999');
 
@@ -34,7 +37,7 @@ let main = () => {
       try {
         let createdProxies = await Promise.all(createPromises);
         console.table(createdProxies);
-        printProxiesTaskBot(createdProxies);
+        utils.printProxiesTaskBot(createdProxies);
       } catch (error) {
         console.log(error);
       }
@@ -112,11 +115,6 @@ let createDroplet = async (proxy) => {
   }
 }
 
-let delay = (ms) => {
-  return new Promise((resolve) => {
-    setTimeout(resolve, ms);
-  });
-}
 
 let waitForCreation = (dropletName) => {
   return new Promise((resolve, reject) => {
@@ -166,7 +164,8 @@ let proxySetup = (dropletName, id, host, username, password, retries=0) => {
       timeout: 99999
     });
 
-    const conf = config.auth ? configAuth : configNoAuth;
+    // const conf = config.auth ? configAuth : configNoAuth;
+    const conf = configNoAuth;
 
     ssh.exec(
       `yum install squid httpd-tools wget -y &&
@@ -209,35 +208,5 @@ let proxySetup = (dropletName, id, host, username, password, retries=0) => {
           }
         }
     });
-  });
-};
-
-let printProxiesSupreme = (createdProxies) => {
-  createdProxies.forEach(proxy => {
-    console.log(`
-    curl -x http://${proxy.IP}:${proxy.Port} --proxy-user ${proxy.Username}:${proxy.Password} -L http://www.supremenewyork.com/mobile_stock.json -H "User-Agent: Mozilla/5.0 (iPhone; CPU iPhone OS 11_0_3 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Mobile/15A432"
-    {
-        'http': 'http://${proxy.Username}:${proxy.Password}@${proxy.IP}:${proxy.Port}/',
-        'https': 'http://${proxy.Username}:${proxy.Password}@${proxy.IP}:${proxy.Port}/'
-    }`);
-  });
-};
-
-let printProxiesAdidas = (createdProxies) => {
-  createdProxies.forEach(proxy => {
-    console.log(`
-    {
-      ip_port: '${proxy.IP}:${proxy.Port}',
-      user: '${proxy.Username}',
-      pass: '${proxy.Password}'
-    },`);
-  });
-};
-
-let printProxiesTaskBot = (createdProxies) => {
-  createdProxies.forEach(proxy => {
-    // console.log(`${proxy.Username}:${proxy.Password}@${proxy.IP}:${proxy.Port}`);
-    console.log(`${proxy.IP}:${proxy.Port}`);
-
   });
 };
