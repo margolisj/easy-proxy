@@ -1,7 +1,7 @@
 export {};
 
 const Linode = require('linode-api-node');
-const config = require('./config');
+import { loadConfig } from './config';
 const randomstring = require('randomstring');
 const prompt = require('prompt');
 const async = require('async');
@@ -9,9 +9,10 @@ const node_ssh = require('node-ssh');
 const fs = require('fs');
 const waitPort = require('wait-port');
 const utils = require('./utils');
+import { Proxy } from './models';
 
-
-const lnc = new Linode(config.linode.apiKey);
+const config = loadConfig();
+const lnc = new Linode(config['linode']['apiKey']);
 
 /*
 updated: '2018-04-05T04:22:19',
@@ -152,7 +153,7 @@ const configNoAuth = 'https://gist.githubusercontent.com/margolisj/ff35ff91df747
 const configAuth = 'https://gist.githubusercontent.com/margolisj/8b2cfd84f8ad7d3ddf1743c8046fe680/raw/7a57321da876cca76ae8e19e76fdf1264aad6cf9/squid_conf_with_auth.conf';
 
 
-let makeInstance = async (retries = 0) => {
+let makeInstance = async (retries = 0): Promise<Proxy> => {
   try {
     let {proxyUsername, proxyPassword, port} = getRandomProxyData();
     // // Create and wait for running
@@ -176,7 +177,7 @@ let makeInstance = async (retries = 0) => {
         }
     });
 
-    const conf = configAuth;
+    const conf = config['auth'] ? configAuth : configNoAuth;
 
     let result = await ssh.execCommand(
       `yum install squid httpd-tools wget -y &&
@@ -188,30 +189,21 @@ let makeInstance = async (retries = 0) => {
       iptables -I INPUT -p tcp --dport 3128 -j ACCEPT &&
       iptables-save`, { cwd:'~' }
     );
-    // console.log(result);
     console.log(`Finished setup id: ${id} with ip: ${ip}`);
 
-    // TODO: Different shape if not auth
-    let proxy = {
-      IP: ip,
-      Port: 3128,
-      Username: proxyUsername,
-      Password: proxyPassword
-    };
+    let proxy;
+    if (config['auth']) {
+      proxy = new Proxy (ip, '3128', proxyUsername, proxyPassword);
+    } else {
+      proxy = new Proxy (ip, '3128');
+    }
 
     console.log(proxy);
     return proxy;
 
   } catch (err) {
     console.log(`${err}`);
-
-    return {
-      IP: '',
-      Port: '',
-      Username: '',
-      Password: ''
-    };
-
+    return new Proxy ('', '');
   }
 };
 
@@ -222,6 +214,7 @@ let main = async () => {
     description: 'Number of proxies to make'
   }], async (err, result) => {
     if (err) {
+      console.log(err);
       process.exit();
     }
 
@@ -234,12 +227,12 @@ let main = async () => {
     try {
       let createdProxies = await Promise.all(createPromises);
       console.log(createdProxies);
-      // console.table(createdProxies);
-      utils.printProxiesColon(createdProxies);
-      console.log('Completed');
+      createdProxies.forEach(proxy => console.log(proxy.toString()))
     } catch (error) {
       console.log(error);
     }
+
+    console.log('Completed');
 
   });
 };

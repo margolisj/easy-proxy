@@ -1,6 +1,8 @@
 
 enum PrintStyle {
-  
+  PythonRequest,
+  ColonAuth,
+  AtAuth
 }
 
 export class Proxy {
@@ -19,12 +21,24 @@ export class Proxy {
           }
   }
 
-  toString(): string {
-      let stringified:string = `${this.ip}:${this.port}`;
-      if (this.isUserPassAuth) {
-          return `${this.username}:${this.password}@${stringified}`;
+  toString(style: PrintStyle = PrintStyle.ColonAuth): string {
+      if (style === PrintStyle.PythonRequest) {
+          let proxyAuth = this.isUserPassAuth ? `${this.username}:${this.password}@` : '';
+          return `
+          {
+              'http': 'http://${proxyAuth}${this.ip}:${this.port}/',
+              'https': 'http://${proxyAuth}${this.ip}:${this.port}/'
+          }`;
+      } else if (style === PrintStyle.ColonAuth) {
+        let proxyAuth = this.isUserPassAuth ? `:${this.username}:${this.password}` : '';
+        return `${this.ip}:${this.port}${proxyAuth}`
       }
-      return stringified;
+
+    //   let stringified:string = `${this.ip}:${this.port}`;
+    //   if (this.isUserPassAuth) {
+    //       return `${this.username}:${this.password}@${stringified}`;
+    //   }
+    //   return stringified;
   }
 
   static parseProxy(proxyString: string): Proxy {
