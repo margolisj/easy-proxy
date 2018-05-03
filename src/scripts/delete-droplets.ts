@@ -1,6 +1,7 @@
 export {};
 
-let config = require('../config');
+import { loadConfig } from '../config';
+const config = loadConfig();
 let DigitalOcean = require('do-wrapper'),
     api = new DigitalOcean(config.digital_ocean.api_key, '9999');
 /*
