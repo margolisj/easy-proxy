@@ -4,11 +4,10 @@ const Linode = require('linode-api-node');
 import { loadConfig } from './config';
 const randomstring = require('randomstring');
 const prompt = require('prompt');
-const async = require('async');
 const node_ssh = require('node-ssh');
 const fs = require('fs');
 const waitPort = require('wait-port');
-const utils = require('./utils');
+const { delay, getRandomProxyData } = require('./utils');
 import { Proxy } from './models';
 
 const config = loadConfig();
@@ -107,27 +106,7 @@ let getDistributions = async () => {
   }
 }
 
-let getRandomProxyData = () => {
-  let port = Math.floor(Math.random() * 6500) + 2000;
 
-  let username = randomstring.generate({
-    length: 7,
-    charset: 'alphabetic',
-    capitalization: 'lowercase'
-  });
-
-  let password = randomstring.generate({
-    length: 14,
-    charset: 'alphabetic',
-    capitalization: 'lowercase'
-  });
-
-  return {
-      proxyUsername: username,
-      proxyPassword: password,
-      port: port
-  };
-};
 
 
 let waitForCreation = async (dropletName) => {
@@ -137,7 +116,7 @@ let waitForCreation = async (dropletName) => {
       let response =  await lnc.getLinodeInstances(dropletName);
       status = response.status;
       console.log(status);
-      await utils.delay(5000);
+      await delay(5000);
     } catch (err) {
       console.log(err);
       return false;
@@ -145,7 +124,7 @@ let waitForCreation = async (dropletName) => {
   }
 
   // Added for ssh issue
-  await utils.delay(5000);
+  await delay(5000);
   return true;
 };
 

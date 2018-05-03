@@ -183,10 +183,6 @@ chalk@^2.3.0:
     escape-string-regexp "^1.0.5"
     supports-color "^5.3.0"
 
-clone@^1.0.2:
-  version "1.0.4"
-  resolved "https://registry.yarnpkg.com/clone/-/clone-1.0.4.tgz#da309cc263df15994c688ca902179ca3c7cd7c7e"
-
 co@^4.6.0:
   version "4.6.0"
   resolved "https://registry.yarnpkg.com/co/-/co-4.6.0.tgz#6ea6bdf3d853ae54ccb8e47bfa0bf3f9031fb184"
@@ -222,12 +218,6 @@ commander@^2.9.0:
 concat-map@0.0.1:
   version "0.0.1"
   resolved "https://registry.yarnpkg.com/concat-map/-/concat-map-0.0.1.tgz#d8a96bd77fd68df7793a73036a3ba0d5405d477b"
-
-console.table@^0.10.0:
-  version "0.10.0"
-  resolved "https://registry.yarnpkg.com/console.table/-/console.table-0.10.0.tgz#0917025588875befd70cf2eff4bef2c6e2d75d04"
-  dependencies:
-    easy-table "1.1.0"
 
 core-util-is@1.0.2, core-util-is@~1.0.0:
   version "1.0.2"
@@ -269,12 +259,6 @@ deepmerge@^1.4.4:
   version "1.5.2"
   resolved "https://registry.yarnpkg.com/deepmerge/-/deepmerge-1.5.2.tgz#10499d868844cdad4fee0842df8c7f6f0c95a753"
 
-defaults@^1.0.3:
-  version "1.0.3"
-  resolved "https://registry.yarnpkg.com/defaults/-/defaults-1.0.3.tgz#c656051e9817d9ff08ed881477f3fe4019f3ef7d"
-  dependencies:
-    clone "^1.0.2"
-
 delayed-stream@~1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/delayed-stream/-/delayed-stream-1.0.0.tgz#df3ae199acadfb7d440aaae0b29e2272b24ec619"
@@ -288,12 +272,6 @@ do-wrapper@^3.11.1:
   resolved "https://registry.yarnpkg.com/do-wrapper/-/do-wrapper-3.11.1.tgz#bedaf217230c8f9ba7eecc4e68c23ba284c762f2"
   dependencies:
     request "2.74.0"
-
-easy-table@1.1.0:
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/easy-table/-/easy-table-1.1.0.tgz#86f9ab4c102f0371b7297b92a651d5824bc8cb73"
-  optionalDependencies:
-    wcwidth ">=1.0.1"
 
 ecc-jsbn@~0.1.1:
   version "0.1.1"
@@ -798,13 +776,6 @@ shell-escape@^0.2.0:
   version "0.2.0"
   resolved "https://registry.yarnpkg.com/shell-escape/-/shell-escape-0.2.0.tgz#68fd025eb0490b4f567a027f0bf22480b5f84133"
 
-simple-ssh@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/simple-ssh/-/simple-ssh-1.0.0.tgz#b12ec600056c13626cc9a77a50b6b921db39696b"
-  dependencies:
-    ssh2 "^0.5.0"
-    xtend "^4.0.1"
-
 sntp@1.x.x:
   version "1.0.9"
   resolved "https://registry.yarnpkg.com/sntp/-/sntp-1.0.9.tgz#6541184cc90aeea6c6e7b35e2659082443c66198"
@@ -964,12 +935,6 @@ wait-port@^0.2.2:
     commander "^2.9.0"
     debug "^2.6.6"
 
-wcwidth@>=1.0.1:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/wcwidth/-/wcwidth-1.0.1.tgz#f0b0dcf915bc5ff1528afadb2c0e17b532da2fe8"
-  dependencies:
-    defaults "^1.0.3"
-
 winston@2.1.x:
   version "2.1.1"
   resolved "https://registry.yarnpkg.com/winston/-/winston-2.1.1.tgz#3c9349d196207fd1bdff9d4bc43ef72510e3a12e"
@@ -986,7 +951,7 @@ wrappy@1:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/wrappy/-/wrappy-1.0.2.tgz#b5243d8f3ec1aa35f1364605bc0d1036e30ab69f"
 
-xtend@^4.0.0, xtend@^4.0.1:
+xtend@^4.0.0:
   version "4.0.1"
   resolved "https://registry.yarnpkg.com/xtend/-/xtend-4.0.1.tgz#a5c6d532be656e23db820efb943a1f04998d63af"
 

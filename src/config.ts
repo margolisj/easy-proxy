@@ -1,4 +1,6 @@
-export const loadConfig = () => {
+import {Config} from './models';
+
+export const loadConfig = (): Config => {
   let config;
 
   try {
