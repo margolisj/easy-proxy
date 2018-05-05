@@ -33,7 +33,7 @@ export class Proxy {
 
   constructor(
       public ip: string,
-      public port:string,
+      public port: string,
       public username: string = null,
       public password: string = null) {
           // Currently doesn't support an empty password,

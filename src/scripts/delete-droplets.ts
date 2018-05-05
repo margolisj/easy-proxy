@@ -1,5 +1,3 @@
-export {};
-
 import { loadConfig } from '../config';
 const config = loadConfig();
 let DigitalOcean = require('do-wrapper'),

@@ -49,6 +49,6 @@ export const getRandomProxyData = () => {
   return {
       proxyUsername: username,
       proxyPassword: password,
-      port: port
+      port: port + '' // Convert to string
   };
 };
