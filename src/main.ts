@@ -6,13 +6,13 @@ import * as fs from 'fs';
 const randomstring = require('randomstring');
 import * as waitPort from 'wait-port';
 
+import { noAuthConfig } from './configs/squidConfigNoAuth';
+import { passwordAuthConfig } from './configs/squidConfigPasswordAuth';
+
 import * as Linode from 'linode-api-node';
-// import * as DigitalOcean from 'do-wrapper';
 const DigitalOcean = require('do-wrapper');
 
 const config = loadConfig();
-const configNoAuth = 'https://gist.githubusercontent.com/margolisj/ff35ff91df747e5917174d7cca0cf769/raw/4f7296169a9b081998103fdedb41cc2e9281c648/conf';
-const configAuth = 'https://gist.githubusercontent.com/margolisj/8b2cfd84f8ad7d3ddf1743c8046fe680/raw/7a57321da876cca76ae8e19e76fdf1264aad6cf9/squid_conf_with_auth.conf';
 
 interface Provider {
   createInstance(retries: number);
@@ -84,11 +84,11 @@ class LinodeProvider implements Provider {
       let dropletName = randomstring.generate(14);
       let {proxyUsername, proxyPassword, port} = getRandomProxyData();
 
-      // // Create and wait for running
+      // Create and wait for running
       let {id, ip} = await this.createInstance();
-      console.log(`${dropletName} | Waiting for droplet to initialize`);
+      console.log(`${dropletName} | Waiting for linode to initialize`);
       let success = await this.waitForCreation(id);
-      console.log(`${dropletName} | Created id: ${id} with ip: ${ip}`);
+      console.log(`${dropletName} | Created id: ${id} with ip: ${ip}:${port}`);
       await waitPort({
         host: ip,
         port: 22,
@@ -111,13 +111,14 @@ class LinodeProvider implements Provider {
       });
       console.log(`${dropletName} | Connected to droplet`);
 
-      const conf = this.auth ? configAuth : configNoAuth;
+      const conf: string = this.auth ? passwordAuthConfig(port) : noAuthConfig(port);
   
       let result = await ssh.execCommand(
         `yum install squid httpd-tools wget -y &&
         touch /etc/squid/passwd &&
         htpasswd -b /etc/squid/passwd ${proxyUsername} ${proxyPassword} &&
-        wget -O /etc/squid/squid.conf ${conf} --no-check-certificate &&
+        conf="${conf}" &&
+        echo "$conf" > /etc/squid/squid.conf &&
         touch /etc/squid/blacklist.acl &&
         systemctl restart squid.service && systemctl enable squid.service &&
         iptables -I INPUT -p tcp --dport 3128 -j ACCEPT &&
@@ -127,9 +128,9 @@ class LinodeProvider implements Provider {
   
       let proxy;
       if (this.auth) {
-        proxy = new Proxy (ip, '3128', proxyUsername, proxyPassword);
+        proxy = new Proxy (ip, port, proxyUsername, proxyPassword);
       } else {
-        proxy = new Proxy (ip, '3128');
+        proxy = new Proxy (ip, port);
       }
   
       return proxy;
@@ -197,13 +198,14 @@ class DigitalOceanProvider implements Provider {
 
   async makeInstance(retries: number = 3): Promise<Proxy> {
     const dropletName = randomstring.generate(14);
+
     try {
       let {proxyUsername, proxyPassword, port} = getRandomProxyData();
       // Create and wait for running
       let id = await this.createInstance(dropletName);
       console.log(`${dropletName} | Waiting for droplet to initialize`);
       let ip = await this.waitForCreation(id);
-      console.log(`${dropletName} | Created id: ${id} with ip: ${ip}`);
+      console.log(`${dropletName} | Created id: ${id} with ip: ${ip}:${port}`);
       await waitPort({
         host: ip,
         port: 22,
@@ -220,31 +222,31 @@ class DigitalOceanProvider implements Provider {
       });
       console.log(`${dropletName} | Connected to droplet`);
 
-      const conf = this.auth ? configAuth : configNoAuth;
-
+      const conf = this.auth ? passwordAuthConfig(port) : noAuthConfig(port);
       let result = await ssh.execCommand(
         `yum install squid httpd-tools wget -y &&
         touch /etc/squid/passwd &&
         htpasswd -b /etc/squid/passwd ${proxyUsername} ${proxyPassword} &&
-        wget -O /etc/squid/squid.conf ${conf} --no-check-certificate &&
+        conf="${conf}" &&
+        echo "$conf" > /etc/squid/squid.conf &&
         touch /etc/squid/blacklist.acl &&
         systemctl restart squid.service && systemctl enable squid.service &&
-        iptables -I INPUT -p tcp --dport 3128 -j ACCEPT &&
+        iptables -I INPUT -p tcp --dport ${port} -j ACCEPT &&
         iptables-save`, { cwd:'~' }
       );
       console.log(`${dropletName} | Finished setup id: ${id} with ip: ${ip}`);
 
       let proxy;
       if (this.auth) {
-        proxy = new Proxy (ip, '3128', proxyUsername, proxyPassword);
+        proxy = new Proxy (ip, port, proxyUsername, proxyPassword);
       } else {
-        proxy = new Proxy (ip, '3128');
+        proxy = new Proxy (ip, port);
       }
 
       return proxy;
 
     } catch (err) {
-      console.log(`${err}`);
+      console.log(`${dropletName} | Error ${err}`);
       return new Proxy ('', '');
     }
   }
@@ -252,10 +254,6 @@ class DigitalOceanProvider implements Provider {
 }
 
 let main = async () => {
-  // console.log(`
-  //   Creating proxies on 
-  // `)
-
   try {
     let provider: Provider;
     if (config.provider === 'digital_ocean') {
@@ -265,6 +263,12 @@ let main = async () => {
     } else {
       throw new Error('Unable to determine provider');
     }
+
+    console.log(`
+      Creating proxies on ${config.provider}:
+      region: ${config[config.provider]['region']}
+      auth: ${config.auth}
+    `);
 
     let result = await propmtPromise([{
       name: 'count',
