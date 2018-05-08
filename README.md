@@ -3,6 +3,8 @@ Mass proxy distribution made easily with the DigitalOcean API
 
 ### Todo
 * Features
+  * Get status
+  * Mock up common API
   * Finish tester
   * Finish print formats
   * Set up delete better

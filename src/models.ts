@@ -64,29 +64,33 @@ export class Proxy {
   }
 
   static parseProxy(proxyString: string): Proxy {
-      try {
-          let userPass: Array<string>, auth: Array<string>;
-          if (proxyString.includes('@')) {
-              // Has user / auth
-              let split = proxyString.split('@');
-              auth = split[0].split(':');
-              userPass = split[1].split(':');
-          } else {
-              userPass = proxyString.split(':');
-          }
-          
-          if (userPass && userPass.length < 2) {
-            throw 'Bad parse';
-          }
-          return new Proxy(
-              userPass[0],
-              userPass[1],
-              auth ? auth[0] : null,
-              auth ? auth[1] : null
-          );
-      } catch (err) {
-          console.log(`Proxy ${proxyString} is not able to be parsed`);
-          return null;
-      }
-  }
+    try {
+        let userPass: Array<string>, auth: Array<string>;
+
+        if (proxyString.includes('@')) {
+            let split = proxyString.split('@');
+            auth = split[0].split(':');
+            userPass = split[1].split(':');
+        } else if (proxyString.split(':').length > 1) {
+          let split = proxyString.split(':');
+          userPass = [split[0], split[1]];
+          auth = [split[2], split[3]];
+        } else {
+            userPass = proxyString.split(':');
+        }
+        
+        if (userPass && userPass.length < 2) {
+          throw 'Bad parse';
+        }
+        return new Proxy(
+            userPass[0],
+            userPass[1],
+            auth ? auth[0] : null,
+            auth ? auth[1] : null
+        );
+    } catch (err) {
+        console.log(`Proxy ${proxyString} is not able to be parsed`);
+        return null;
+    }
+}
 }

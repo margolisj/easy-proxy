@@ -2,10 +2,6 @@ import { loadConfig } from '../config';
 const config = loadConfig();
 let DigitalOcean = require('do-wrapper'),
     api = new DigitalOcean(config.digital_ocean.api_key, '9999');
-/*
-  WARNING: This will delete all of your digital ocean droplets. ALL OF THEM.
-  Well, really just the ones with the tag provided below.
-*/
 
 let tag = 'easy';
 

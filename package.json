@@ -9,10 +9,10 @@
     "build": "tsc"
   },
   "devDependencies": {
-    "@types/node": "^10.0.2",
+    "@types/node": "^10.0.4",
     "@types/request": "^2.47.0",
     "@types/request-promise-native": "^1.0.14",
-    "ts-node": "^5.0.1",
+    "ts-node": "^6.0.3",
     "typescript": "^2.7.2"
   },
   "dependencies": {
