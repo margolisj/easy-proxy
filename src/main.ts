@@ -153,7 +153,7 @@ class DigitalOceanProvider implements Provider {
      this.auth = config.auth;
   }
 
-  async createInstance(dropletName, retries: number = 3){
+  async createInstance(dropletName, retries: number = 3) {
     let dropletData = {
       name: dropletName,
       region: config.digital_ocean.region,
@@ -219,7 +219,7 @@ class DigitalOceanProvider implements Provider {
         port: 22,
         privateKey: config.digital_ocean.rsa_id_path,
         passphrase: config.digital_ocean.ssh_passphrase
-      });
+      }); 
       console.log(`${dropletName} | Connected to droplet`);
 
       const conf = this.auth ? passwordAuthConfig(port) : noAuthConfig(port);
