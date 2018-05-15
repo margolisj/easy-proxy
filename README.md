@@ -3,20 +3,16 @@ Mass proxy distribution made easily with the DigitalOcean API
 
 ## Todo
 * Features
-  * Get status
-  * Mock up common API
   * Finish tester
-  * Set up delete better
-* Linode
-  * Set up tagging
-  * Figure out 408 - {"errors":[{"reason":"Please try again"}]}
-* DO
-  * Error: connect ECONNREFUSED 104.236.247.78:22
-  * Error: Timed out while waiting for handshake
+    * Shopfy / Kith
+    * Footsites
+  * Finish DO Tagging from config
+  * Figure out tagging for Linode
+* Errors
+  * Linode - Figure out 408 - {"errors":[{"reason":"Please try again"}]} - on create node
+  * DO and Linode: Error: Timed out while waiting for handshake - on ssh connection
 
 ## Installation
-
-easy-proxy requires [Node.js](http://nodejs.org/).
 
 ### Setup:
 
@@ -34,9 +30,8 @@ Example curl without auth:
 $  curl -x http://104.236.214.154:3128/ -L supremenewyork.com
 ```
 
-## Config
+### Config
 
-### Fields/Attributes
 * **config**{ Object }:
   * **config.provider** {  _String_ }: Provider used to create proxies as of right now only `digital_ocean` is an option.
   * **config.auth** {  _Boolean_ }: To use user auth
@@ -60,5 +55,5 @@ $  curl -x http://104.236.214.154:3128/ -L supremenewyork.com
 ** https://github.com/steelbrain/node-ssh
 
 ## Old Config Links
-* https://gist.githubusercontent.com/margolisj/ff35ff91df747e5917174d7cca0cf769/raw/4f7296169a9b081998103fdedb41cc2e9281c648/conf';
-* https://gist.githubusercontent.com/margolisj/8b2cfd84f8ad7d3ddf1743c8046fe680/raw/7a57321da876cca76ae8e19e76fdf1264aad6cf9/squid_conf_with_auth.conf';
+* https://gist.githubusercontent.com/margolisj/ff35ff91df747e5917174d7cca0cf769/raw/4f7296169a9b081998103fdedb41cc2e9281c648/conf'
+* https://gist.githubusercontent.com/margolisj/8b2cfd84f8ad7d3ddf1743c8046fe680/raw/7a57321da876cca76ae8e19e76fdf1264aad6cf9/squid_conf_with_auth.conf'

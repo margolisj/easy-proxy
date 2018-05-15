@@ -15,10 +15,9 @@ const DigitalOcean = require('do-wrapper');
 const config = loadConfig();
 
 interface Provider {
-  createInstance(retries: number);
+  createInstance(dropletName:string, retries: number);
   waitForCreation(id: string);
   makeInstance(retries?: number);
-
 }
 
 class LinodeProvider implements Provider {
@@ -31,10 +30,9 @@ class LinodeProvider implements Provider {
     this.lnc = new Linode(config['linode']['apiKey']);
     this.rootpass = config.linode.sshPassphrase;
     this.auth = config.auth;
-    this.dropletName = randomstring.generate(14);
   }
 
-  async createInstance (retries:number  = 3) {
+  async createInstance(dropletName:string, retries:number  = 3) {
     let region = config.linode.region;
     let instanceType = 'g5-nanode-1';
     let imageType = 'linode/centos7';
@@ -53,14 +51,14 @@ class LinodeProvider implements Provider {
       };
 
     } catch (err) {
-      console.log('Error creating node:');
+      console.log(`${dropletName} Error creating node, retry ${retries}: \n`);
       console.log(err['message']);
   
       if (retries == 0) {
         return null;
       };
   
-      return this.createInstance(retries - 1);
+      return this.createInstance(dropletName, retries - 1);
     }
   
   };
@@ -83,23 +81,24 @@ class LinodeProvider implements Provider {
   }
 
   async makeInstance(retries: number = 3): Promise<Proxy> {
-    try {
-      let {proxyUsername, proxyPassword, port} = getRandomProxyData();
+    let dropletName = randomstring.generate(14);
+    let {proxyUsername, proxyPassword, port} = getRandomProxyData();
 
+    try {
       let id, ip;
       try {
         // Create and wait for running
-        ({id, ip} = await this.createInstance());
-        console.log(`${this.dropletName} | Waiting for linode to initialize`);
+        ({id, ip} = await this.createInstance(dropletName));
+        console.log(`${dropletName} | Waiting for linode to initialize`);
         let success = await this.waitForCreation(id);
-        console.log(`${this.dropletName} | Created id: ${id} with ip: ${ip}:${port}`);
+        console.log(`${dropletName} | Created id: ${id} with ip: ${ip}:${port}`);
         await waitPort({
           host: ip,
           port: 22,
           output: 'silent'
         });
       } catch (err) {
-        console.log(`${this.dropletName} | Error waiting for port ${err}`);
+        console.log(`${dropletName} | Error waiting for port ${err}`);
         throw err;
       }
 
@@ -110,6 +109,7 @@ class LinodeProvider implements Provider {
           host: ip,
           username: 'root',
           port: 22,
+          readyTimeout: 99999,
           password,
           tryKeyboard: true,
           onKeyboardInteractive: (name, instructions, instructionsLang, prompts, finish) => {
@@ -118,9 +118,9 @@ class LinodeProvider implements Provider {
               }
             }
         });
-        console.log(`${this.dropletName} | Connected to droplet`);
+        console.log(`${dropletName} | Connected to droplet`);
       } catch (err) {
-        console.log(`${this.dropletName} | Unable to ssh ${err}`);
+        console.log(`${dropletName} | Unable to ssh ${err}`);
         throw err;
       }
 
@@ -138,9 +138,9 @@ class LinodeProvider implements Provider {
           iptables -I INPUT -p tcp --dport ${port} -j ACCEPT &&
           iptables-save`, { cwd:'~' }
         );
-        console.log(`${this.dropletName} | Finished setup id: ${id} with ip: ${ip}`);
+        console.log(`${dropletName} | Finished setup id: ${id} with ip: ${ip}`);
       } catch (err) {
-        console.log(`${this.dropletName} | Failed to execute ssh command: ${err}`)
+        console.log(`${dropletName} | Failed to execute ssh command: ${err}`)
         throw err;
       }
 
@@ -190,7 +190,12 @@ class DigitalOceanProvider implements Provider {
       let response = await this.api.dropletsCreate(dropletData);
       return response['body']['droplet']['id'];
     } catch(err) {
-      console.log(err);
+      console.log(`${dropletName} Error creating node, retry ${retries}: \n${err['message']}`);
+      if (retries == 0) {
+        return null;
+      };
+  
+      return this.createInstance(dropletName, retries - 1);
     }
   }
   
