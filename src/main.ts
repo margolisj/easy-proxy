@@ -1,4 +1,4 @@
-import { Proxy } from './models';
+import { Proxy } from './proxy';
 import { loadConfig } from './config';
 import { delay, getRandomProxyData, propmtPromise} from './utils';
 import * as node_ssh from 'node-ssh';
@@ -18,6 +18,7 @@ interface Provider {
   createInstance(retries: number);
   waitForCreation(id: string);
   makeInstance(retries?: number);
+
 }
 
 class LinodeProvider implements Provider {
@@ -30,6 +31,7 @@ class LinodeProvider implements Provider {
     this.lnc = new Linode(config['linode']['apiKey']);
     this.rootpass = config.linode.sshPassphrase;
     this.auth = config.auth;
+    this.dropletName = randomstring.generate(14);
   }
 
   async createInstance (retries:number  = 3) {
@@ -51,6 +53,7 @@ class LinodeProvider implements Provider {
       };
 
     } catch (err) {
+      console.log('Error creating node:');
       console.log(err['message']);
   
       if (retries == 0) {
@@ -81,64 +84,79 @@ class LinodeProvider implements Provider {
 
   async makeInstance(retries: number = 3): Promise<Proxy> {
     try {
-      let dropletName = randomstring.generate(14);
       let {proxyUsername, proxyPassword, port} = getRandomProxyData();
 
-      // Create and wait for running
-      let {id, ip} = await this.createInstance();
-      console.log(`${dropletName} | Waiting for linode to initialize`);
-      let success = await this.waitForCreation(id);
-      console.log(`${dropletName} | Created id: ${id} with ip: ${ip}:${port}`);
-      await waitPort({
-        host: ip,
-        port: 22,
-        output: 'silent'
-      });
+      let id, ip;
+      try {
+        // Create and wait for running
+        ({id, ip} = await this.createInstance());
+        console.log(`${this.dropletName} | Waiting for linode to initialize`);
+        let success = await this.waitForCreation(id);
+        console.log(`${this.dropletName} | Created id: ${id} with ip: ${ip}:${port}`);
+        await waitPort({
+          host: ip,
+          port: 22,
+          output: 'silent'
+        });
+      } catch (err) {
+        console.log(`${this.dropletName} | Error waiting for port ${err}`);
+        throw err;
+      }
 
       let password = this.rootpass;
       let ssh = new node_ssh();
-      await ssh.connect({
-        host: ip,
-        username: 'root',
-        port: 22,
-        password,
-        tryKeyboard: true,
-        onKeyboardInteractive: (name, instructions, instructionsLang, prompts, finish) => {
-            if (prompts.length > 0 && prompts[0].prompt.toLowerCase().includes('password')) {
-              finish([password])
+      try {
+        await ssh.connect({
+          host: ip,
+          username: 'root',
+          port: 22,
+          password,
+          tryKeyboard: true,
+          onKeyboardInteractive: (name, instructions, instructionsLang, prompts, finish) => {
+              if (prompts.length > 0 && prompts[0].prompt.toLowerCase().includes('password')) {
+                finish([password])
+              }
             }
-          }
-      });
-      console.log(`${dropletName} | Connected to droplet`);
+        });
+        console.log(`${this.dropletName} | Connected to droplet`);
+      } catch (err) {
+        console.log(`${this.dropletName} | Unable to ssh ${err}`);
+        throw err;
+      }
 
-      const conf: string = this.auth ? passwordAuthConfig(port) : noAuthConfig(port);
-  
-      let result = await ssh.execCommand(
-        `yum install squid httpd-tools wget -y &&
-        touch /etc/squid/passwd &&
-        htpasswd -b /etc/squid/passwd ${proxyUsername} ${proxyPassword} &&
-        conf="${conf}" &&
-        echo "$conf" > /etc/squid/squid.conf &&
-        touch /etc/squid/blacklist.acl &&
-        systemctl restart squid.service && systemctl enable squid.service &&
-        iptables -I INPUT -p tcp --dport 3128 -j ACCEPT &&
-        iptables-save`, { cwd:'~' }
-      );
-      console.log(`${dropletName} | Finished setup id: ${id} with ip: ${ip}`);
-  
+      try {
+        const conf: string = this.auth ? passwordAuthConfig(port) : noAuthConfig(port);
+    
+        let result = await ssh.execCommand(
+          `yum install squid httpd-tools wget -y &&
+          touch /etc/squid/passwd &&
+          htpasswd -b /etc/squid/passwd ${proxyUsername} ${proxyPassword} &&
+          conf="${conf}" &&
+          echo "$conf" > /etc/squid/squid.conf &&
+          touch /etc/squid/blacklist.acl &&
+          systemctl restart squid.service && systemctl enable squid.service &&
+          iptables -I INPUT -p tcp --dport ${port} -j ACCEPT &&
+          iptables-save`, { cwd:'~' }
+        );
+        console.log(`${this.dropletName} | Finished setup id: ${id} with ip: ${ip}`);
+      } catch (err) {
+        console.log(`${this.dropletName} | Failed to execute ssh command: ${err}`)
+        throw err;
+      }
+
       let proxy;
       if (this.auth) {
         proxy = new Proxy (ip, port, proxyUsername, proxyPassword);
       } else {
         proxy = new Proxy (ip, port);
       }
-  
       return proxy;
-  
+
     } catch (err) {
       console.log(`${err}`);
       return new Proxy ('', '');
     }
+
   }
 
 };

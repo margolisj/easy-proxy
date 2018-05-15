@@ -1,12 +1,11 @@
 # easy-proxy
 Mass proxy distribution made easily with the DigitalOcean API
 
-### Todo
+## Todo
 * Features
   * Get status
   * Mock up common API
   * Finish tester
-  * Finish print formats
   * Set up delete better
 * Linode
   * Set up tagging
@@ -15,17 +14,11 @@ Mass proxy distribution made easily with the DigitalOcean API
   * Error: connect ECONNREFUSED 104.236.247.78:22
   * Error: Timed out while waiting for handshake
 
-### Installation
+## Installation
 
 easy-proxy requires [Node.js](http://nodejs.org/).
 
-Setup:
-
-```sh
-$ git clone https://github.com/dzt/easy-proxy.git
-$ cd easy-proxy
-$ npm install
-```
+### Setup:
 
 Configure information inside the `config.example.json` be sure to rename it to `config.json` or simply run `mv config.example.json config.json` (macOS & Windows) when you're done.
 
