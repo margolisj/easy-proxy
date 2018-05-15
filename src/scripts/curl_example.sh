@@ -1,1 +1,0 @@
-curl -x http://165.227.182.252:3128 --proxy-user neufonj:sjefjiltgubfat -L http://www.supremenewyork.com/mobile_stock.json -H "User-Agent: Mozilla/5.0 (iPhone; CPU iPhone OS 11_0_3 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Mobile/15A432"
