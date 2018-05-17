@@ -42,7 +42,8 @@ class LinodeProvider implements Provider {
         'region': region,
         'type': instanceType,
         'image': imageType,
-        'root_pass': this.rootpass
+        'root_pass': this.rootpass,
+        'label': `${config.linode.label}-${randomstring.generate(5)}`
       });
   
       return {
@@ -183,7 +184,7 @@ class DigitalOceanProvider implements Provider {
       user_data: null,
       private_networking: false,
       volumes: null,
-      tags: [ 'easy' ]
+      tags: [ config.digital_ocean.tag ]
     };
 
     try {
