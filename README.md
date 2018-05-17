@@ -1,16 +1,21 @@
 # easy-proxy
-Mass proxy distribution made easily with the DigitalOcean API
+Creates proxies on hosts
 
 ## Todo
 * Features
+  * Update example config
   * Finish tester
-    * Shopfy / Kith
-    * Footsites
-  * Finish DO Tagging from config
-  * Figure out tagging for Linode
+    * Figure out why some aren't working
+    * Sites
+      * Shopfy / Kith
+      * Footsites
+  * Test tagging with DO from config
+  * Add google aka GCE
 * Errors
   * Linode - Figure out 408 - {"errors":[{"reason":"Please try again"}]} - on create node
   * DO and Linode: Error: Timed out while waiting for handshake - on ssh connection
+* Longterm
+  * IP Auth squid config
 
 ## Installation
 
@@ -53,6 +58,8 @@ $  curl -x http://104.236.214.154:3128/ -L supremenewyork.com
 ** https://developers.digitalocean.com/documentation/v2/#create-a-new-droplet
 * Node
 ** https://github.com/steelbrain/node-ssh
+** request-native proxy: https://github.com/request/request-promise/issues/130
+
 
 ## Old Config Links
 * https://gist.githubusercontent.com/margolisj/ff35ff91df747e5917174d7cca0cf769/raw/4f7296169a9b081998103fdedb41cc2e9281c648/conf'

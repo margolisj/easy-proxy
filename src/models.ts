@@ -12,10 +12,12 @@ interface DigitalOceanConfig {
   ssh_passphrase: string;
   region: string;
   rsa_id_path: string;
+  tag: string;
 }
 
 interface LinodeConfig {
   apiKey: string;
   sshPassphrase: string;
   region: string;
+  label: string;
 }

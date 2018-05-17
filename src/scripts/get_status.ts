@@ -1,7 +1,6 @@
 import { loadConfig } from '../config';
 const config = loadConfig();
-
-let DigitalOcean = require('do-wrapper'),
+const DigitalOcean = require('do-wrapper'),
     Linode = require('linode-api-node'),
     api = new DigitalOcean(config.digital_ocean.api_key, '9999'),
     lnc = new Linode(config.linode.apiKey);
