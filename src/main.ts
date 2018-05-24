@@ -110,7 +110,7 @@ class LinodeProvider implements Provider {
           host: ip,
           username: 'root',
           port: 22,
-          readyTimeout: 99999,
+          readyTimeout: 60000,
           password,
           tryKeyboard: true,
           onKeyboardInteractive: (name, instructions, instructionsLang, prompts, finish) => {
