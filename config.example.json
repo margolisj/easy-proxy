@@ -1,7 +1,8 @@
 {
   "digital_ocean": {
     "api_key": "xxxxxxxxxxx",
-    "ssh_key_id": 6926458,
+    "instance_size": "s-2vcpu-2gb",
+    "ssh_key_ids": [6926458],
     "ssh_passphrase": "xxxxxx",
     "region": "nyc3",
     "rsa_id_path": "/Users/billy/.ssh/id_rsa"
@@ -10,5 +11,11 @@
     "apiKey": "xxxx"
   },
   "write_txt": true,
-  "provider": "digital_ocean"
+  "provider": "digital_ocean",
+  "docker": {
+    "download_url": "https://google.com",
+    "worker_port": 3000,
+    "vnc_web_ui_port": 6901,
+    "vnc_port": 5901
+  }
 }

@@ -176,9 +176,9 @@ class DigitalOceanProvider implements Provider {
     let dropletData = {
       name: dropletName,
       region: config.digital_ocean.region,
-      size: '512mb',
-      image: 'centos-7-x64',
-      ssh_keys: [config.digital_ocean.ssh_key_id],
+      size: config.digital_ocean.instance_size,
+      image: 'docker-16-04',
+      ssh_keys: config.digital_ocean.ssh_key_ids,
       backups: false,
       ipv6: false,
       user_data: null,
@@ -229,7 +229,7 @@ class DigitalOceanProvider implements Provider {
       let id = await this.createInstance(dropletName);
       console.log(`${dropletName} | Waiting for droplet to initialize`);
       let ip = await this.waitForCreation(id);
-      console.log(`${dropletName} | Created id: ${id} with ip: ${ip}:${port}`);
+      console.log(`${dropletName} | Created id: ${id} with ip: ${ip}`);
       await waitPort({
         host: ip,
         port: 22,
@@ -242,32 +242,26 @@ class DigitalOceanProvider implements Provider {
         username: 'root',
         port: 22,
         privateKey: config.digital_ocean.rsa_id_path,
-        passphrase: config.digital_ocean.ssh_passphrase
       }); 
       console.log(`${dropletName} | Connected to droplet`);
 
       const conf = this.auth ? passwordAuthConfig(port) : noAuthConfig(port);
+      
       let result = await ssh.execCommand(
-        `yum install squid httpd-tools wget -y &&
-        touch /etc/squid/passwd &&
-        htpasswd -b /etc/squid/passwd ${proxyUsername} ${proxyPassword} &&
-        conf="${conf}" &&
-        echo "$conf" > /etc/squid/squid.conf &&
-        touch /etc/squid/blacklist.acl &&
-        systemctl restart squid.service && systemctl enable squid.service &&
-        iptables -I INPUT -p tcp --dport ${port} -j ACCEPT &&
-        iptables-save`, { cwd:'~' }
+        `apt-get install wget htop -y &&
+        ufw allow 5901 &&
+        ufw allow 6901 &&
+        ufw allow 3000 &&
+        wget --quiet -O cart-goblin-worker.tar.gz "${config.docker.download_url}" &&
+        tar xfz cart-goblin-worker.tar.gz &&
+        docker load -i cart-goblin-worker.tar && 
+        docker run -d --security-opt 'seccomp=./seccomp-chrome.json' -p ${config.docker.worker_port}:${config.docker.worker_port} -p ${config.docker.vnc_port}:${config.docker.vnc_port} -p ${config.docker.vnc_web_ui_port}:${config.docker.vnc_web_ui_port} cart-goblin-worker`,
+        { cwd:'~' }
       );
-      console.log(`${dropletName} | Finished setup id: ${id} with ip: ${ip}`);
-
-      let proxy;
-      if (this.auth) {
-        proxy = new Proxy (ip, port, proxyUsername, proxyPassword);
-      } else {
-        proxy = new Proxy (ip, port);
-      }
-
-      return proxy;
+      result = await ssh.execCommand(
+        `docker ps`, { cwd:'~' }
+      );
+      console.log(`${dropletName} | Finished setup id: ${id} with ip: ${ip}. Worker on port ${config.docker.worker_port}. Connect to VNC Web UI at http://${ip}:${config.docker.vnc_web_ui_port}`);
 
     } catch (err) {
       console.log(`${dropletName} | Error ${err}`);
@@ -316,4 +310,29 @@ let main = async () => {
   console.log('Completed');
 };
 
-main();
+let austin_main = async () => {
+  try {
+    let provider: Provider;
+    if (config.provider === 'digital_ocean') {
+      provider = new DigitalOceanProvider();
+    } else if (config.provider === 'linode'){
+      provider = new LinodeProvider();
+    } else {
+      throw new Error('Unable to determine provider');
+    }
+
+    console.log(`
+      Creating worker on ${config.provider}
+      region: ${config[config.provider]['region']}
+    `);
+
+    await provider.makeInstance();
+  } catch (err) {
+    console.log(err);
+  }
+
+  console.log('Completed');
+  process.exit(0)
+};
+
+austin_main();
