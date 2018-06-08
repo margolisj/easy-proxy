@@ -1,6 +1,11 @@
 # easy-proxy
 Creates proxies on hosts
 
+# AUSTIN WIP DOCKER DEPLOYMENT
+Run with `ts-node src/main.ts` to create a worker instance. Ask Austin for his config.json.
+Really ghetto right now. Will get better. 
+Should be able to SSH as `root` to all droplets that are created using your ssh key
+
 ## Todo
 * Features
   * Update example config
