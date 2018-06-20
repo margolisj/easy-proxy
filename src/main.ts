@@ -237,12 +237,16 @@ class DigitalOceanProvider implements Provider {
       });
 
       let ssh = new node_ssh();
-      await ssh.connect({
+      let ssh_settings = {
         host: ip,
         username: 'root',
         port: 22,
-        privateKey: config.digital_ocean.rsa_id_path,
-      }); 
+        privateKey: config.digital_ocean.rsa_id_path
+      }
+      if (config.digital_ocean.ssh_passphrase) {
+        ssh_settings['passphrase'] = config.digital_ocean.ssh_passphrase
+      }
+      await ssh.connect(ssh_settings); 
       console.log(`${dropletName} | Connected to droplet`);
 
       const conf = this.auth ? passwordAuthConfig(port) : noAuthConfig(port);

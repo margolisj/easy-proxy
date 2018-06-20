@@ -6,6 +6,7 @@ export const loadConfig = (): Config => {
   try {
     config = require('../config.json');
   } catch (error) {
+    console.log(error);
     console.log('Unable to find config.json. Please create a new config from the example.');
     process.exit(1);
   }
