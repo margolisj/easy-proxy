@@ -1,9 +1,9 @@
 import { loadConfig } from '../config';
 import { groupBy } from '../utils';
 const config = loadConfig();
-const DigitalOcean = require('do-wrapper'),
+const DigitalOcean = require('do-wrapper').default,
     Linode = require('linode-api-node'),
-    api = new DigitalOcean(config.digital_ocean.api_key, '9999'),
+    api = new DigitalOcean(config.digital_ocean.api_key),
     lnc = new Linode(config.linode.apiKey);
 
 
