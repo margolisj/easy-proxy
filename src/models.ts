@@ -3,7 +3,18 @@ export interface Config {
   linode: LinodeConfig;
 
   provider: string;
-  auth: boolean;
+  auth: Auth;
+}
+
+interface Auth {
+  type: AuthType;
+  ip?: string;
+}
+
+export enum AuthType {
+  IP = 'ip',
+  USERPASS = 'userpass',
+  NONE = ''
 }
 
 interface DigitalOceanConfig {

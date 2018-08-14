@@ -1,7 +1,7 @@
-import {Config} from './models';
+import { Config } from './models';
 
 export const loadConfig = (): Config => {
-  let config;
+  let config: Config;
 
   try {
     config = require('../config.json');
@@ -10,7 +10,12 @@ export const loadConfig = (): Config => {
     process.exit(1);
   }
 
-  var requiredValues = [ 'digital_ocean', 'provider' ];
+  var requiredValues = [
+    'digital_ocean',
+    'lindoe',
+    'auth',
+    'provider',
+  ];
 
   for (var i = 0; i < requiredValues.length; i++) {
     if (!config.hasOwnProperty(requiredValues[i])) {
