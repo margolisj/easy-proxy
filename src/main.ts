@@ -1,16 +1,18 @@
 import { Proxy } from './proxy';
 import { loadConfig } from './config';
-import { delay, getRandomProxyData, propmtPromise} from './utils';
+import { AuthType } from './models';
+import { delay, getRandomProxyData, propmtPromise, applyMixins} from './utils';
 import * as node_ssh from 'node-ssh';
 import * as fs from 'fs';
 const randomstring = require('randomstring');
 import * as waitPort from 'wait-port';
 
-import { noAuthConfig } from './configs/squidConfigNoAuth';
 import { passwordAuthConfig } from './configs/squidConfigPasswordAuth';
+import { ipAuthConfig } from './configs/squidConfigIPAuth';
+import { noAuthConfig } from './configs/squidConfigNoAuth';
 
 import * as Linode from 'linode-api-node';
-const DigitalOcean = require('do-wrapper');
+const DigitalOcean = require('do-wrapper').default;
 
 const config = loadConfig();
 
@@ -20,16 +22,41 @@ interface Provider {
   makeInstance(retries?: number);
 }
 
-class LinodeProvider implements Provider {
+class HasAuth {
+  getSquidConfig(port: string): string {
+    const type = config.auth.type as AuthType;
+    if (type === AuthType.USERPASS) {
+      console.log('Using user/pass ' + port);
+      return passwordAuthConfig(port);
+    } else if (type === AuthType.IP) {
+      console.log('Using ip ' + port);
+      return ipAuthConfig(port, config.auth.ip);
+    } else {
+      console.log('Using none ' + port);
+      return noAuthConfig(port);
+    }
+  }
+
+  createProxy(ip, port, proxyUsername?, proxyPassword?): Proxy {
+    const type = config.auth.type as AuthType;
+    if (type === AuthType.USERPASS) {
+      console.log('Using user/pass create');
+      return new Proxy(ip, port, proxyUsername, proxyPassword);
+    } else {
+      console.log('Using none create');
+      return new Proxy(ip, port, null, null);
+    }
+  }
+}
+
+class LinodeProvider implements Provider, HasAuth {
   private lnc;
   private rootpass: string;
-  private auth: boolean;
   private dropletName: string;
 
   constructor() {
     this.lnc = new Linode(config['linode']['apiKey']);
     this.rootpass = config.linode.sshPassphrase;
-    this.auth = config.auth;
   }
 
   async createInstance(dropletName:string, retries:number  = 3) {
@@ -126,7 +153,7 @@ class LinodeProvider implements Provider {
       }
 
       try {
-        const conf: string = this.auth ? passwordAuthConfig(port) : noAuthConfig(port);
+        const conf: string = this.getSquidConfig(port);
     
         let result = await ssh.execCommand(
           `yum install squid httpd-tools wget -y &&
@@ -145,31 +172,26 @@ class LinodeProvider implements Provider {
         throw err;
       }
 
-      let proxy;
-      if (this.auth) {
-        proxy = new Proxy (ip, port, proxyUsername, proxyPassword);
-      } else {
-        proxy = new Proxy (ip, port);
-      }
-      return proxy;
+      return this.createProxy(ip, port, proxyUsername, proxyPassword);
 
     } catch (err) {
       console.log(`${err}`);
       return new Proxy ('', '');
     }
-
   }
 
-};
+  getSquidConfig: (port) => ''
+  createProxy: (ip, port, proxyUsername, proxyPassword) => Proxy
 
-class DigitalOceanProvider implements Provider {
+};
+applyMixins(LinodeProvider, [HasAuth]);
+
+class DigitalOceanProvider implements Provider, HasAuth {
   private api;
-  private auth: boolean;
   private dropletName: string;
 
   constructor() {
-     this.api = new DigitalOcean(config.digital_ocean.api_key, '9999');
-     this.auth = config.auth;
+    this.api = new DigitalOcean(config.digital_ocean.api_key);
   }
 
   async createInstance(dropletName, retries: number = 3) {
@@ -246,7 +268,8 @@ class DigitalOceanProvider implements Provider {
       }); 
       console.log(`${dropletName} | Connected to droplet`);
 
-      const conf = this.auth ? passwordAuthConfig(port) : noAuthConfig(port);
+      const conf: string = this.getSquidConfig(port);
+
       let result = await ssh.execCommand(
         `yum install squid httpd-tools wget -y &&
         touch /etc/squid/passwd &&
@@ -260,14 +283,7 @@ class DigitalOceanProvider implements Provider {
       );
       console.log(`${dropletName} | Finished setup id: ${id} with ip: ${ip}`);
 
-      let proxy;
-      if (this.auth) {
-        proxy = new Proxy (ip, port, proxyUsername, proxyPassword);
-      } else {
-        proxy = new Proxy (ip, port);
-      }
-
-      return proxy;
+      return this.createProxy(ip, port, proxyUsername, proxyPassword);
 
     } catch (err) {
       console.log(`${dropletName} | Error ${err}`);
@@ -275,7 +291,10 @@ class DigitalOceanProvider implements Provider {
     }
   }
 
+  getSquidConfig: (port) => ''
+  createProxy: (ip, port, proxyUsername, proxyPassword) => Proxy
 }
+applyMixins(DigitalOceanProvider, [HasAuth]);
 
 let main = async () => {
   try {
@@ -291,7 +310,7 @@ let main = async () => {
     console.log(`
       Creating proxies on ${config.provider}:
       region: ${config[config.provider]['region']}
-      auth: ${config.auth}
+      auth: ${config.auth.type}
     `);
 
     let result = await propmtPromise([{
