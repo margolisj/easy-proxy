@@ -12,14 +12,14 @@ export const loadConfig = (): Config => {
 
   var requiredValues = [
     'digital_ocean',
-    'lindoe',
+    'linode',
     'auth',
     'provider',
   ];
 
   for (var i = 0; i < requiredValues.length; i++) {
     if (!config.hasOwnProperty(requiredValues[i])) {
-      console.log("The provided config is invalid. Please create a proper config from the example.");
+      console.log(`The provided config is invalid: missing: ${requiredValues[i]} Please create a proper config from the example.`);
       process.exit(1);
     }
   }
