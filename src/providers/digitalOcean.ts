@@ -1,12 +1,12 @@
 const DigitalOcean = require('do-wrapper').default;
-import { delay, getRandomProxyData, propmtPromise, applyMixins} from '../utils';
-const randomstring = require('randomstring');
+// import * as do_wrapper from 'do-wrapper';
+import { delay, getRandomProxyData, applyMixins} from '../utils';
+import * as randomstring from 'randomstring';
 import * as waitPort from 'wait-port';
 import * as node_ssh from 'node-ssh';
 import { Config } from '../models';
-import { Provider, HasAuth } from './interfaces';
+import { Provider, HasAuth } from './provider';
 import { Proxy } from '../proxy';
-
 
 export class DigitalOceanProvider implements Provider, HasAuth {
   private api;
@@ -39,7 +39,7 @@ export class DigitalOceanProvider implements Provider, HasAuth {
     } catch (err) {
       console.log(`${dropletName} Error creating node, retry ${retries}: \n${err['message']}`);
       if (retries == 0) {
-        return null;
+        throw Error('Unable to create instance.');
       };
   
       return this.createInstance(dropletName, retries - 1);
@@ -58,8 +58,8 @@ export class DigitalOceanProvider implements Provider, HasAuth {
           status = response['body']['droplet'].status;
         }
       } catch (err) {
-        console.log(err);
-        return false;
+        console.log("Error waiting: " + err);
+        throw err;
       }
     }
     await delay(5000); // Added for ssh issues
@@ -72,28 +72,38 @@ export class DigitalOceanProvider implements Provider, HasAuth {
 
     try {
       // Create and wait for running
-      let id = await this.createInstance(dropletName);
+      const id = await this.createInstance(dropletName);
       console.log(`${dropletName} | Waiting for droplet to initialize`);
-      let ip = await this.waitForCreation(id);
+      const ip = await this.waitForCreation(id);
       console.log(`${dropletName} | Created id: ${id} with ip: ${ip}:${port}`);
-      await waitPort({
-        host: ip,
-        port: 22,
-        output: 'silent'
-      });
+      
+      try {
+        await waitPort({
+          host: ip,
+          port: 22,
+          output: 'silent'
+        });
+      } catch (err) {
+        console.log('Error during waitPort: ' + err);
+        throw err;
+      }
+    
+      const ssh = new node_ssh();
+      try {
+        await ssh.connect({
+          host: ip,
+          username: 'root',
+          port: 22,
+          privateKey: this.config.digital_ocean.rsa_id_path,
+          passphrase: this.config.digital_ocean.ssh_passphrase
+        });
+      } catch (err) {
+        console.log('Error connecting to SSH.')
+        throw err;
+      }
 
-      let ssh = new node_ssh();
-      await ssh.connect({
-        host: ip,
-        username: 'root',
-        port: 22,
-        privateKey: this.config.digital_ocean.rsa_id_path,
-        passphrase: this.config.digital_ocean.ssh_passphrase
-      }); 
       console.log(`${dropletName} | Connected to droplet`);
-
       const conf: string = this.getSquidConfig(this.config, port);
-
       console.log(`${dropletName} | Setting up droplet`);
 
       let result = await ssh.execCommand(
@@ -109,7 +119,7 @@ export class DigitalOceanProvider implements Provider, HasAuth {
       );
       console.log(`${dropletName} | Finished setup id: ${id} with ip: ${ip}`);
 
-      return this.createProxy(ip, port, proxyUsername, proxyPassword);
+      return this.createProxy(this.config, ip, port, proxyUsername, proxyPassword);
 
     } catch (err) {
       console.log(`${dropletName} | Error ${err}`);
@@ -118,6 +128,6 @@ export class DigitalOceanProvider implements Provider, HasAuth {
   }
 
   getSquidConfig: (config, port) => ''
-  createProxy: (ip, port, proxyUsername, proxyPassword) => Proxy
+  createProxy: (config, ip, port, proxyUsername, proxyPassword) => Proxy
 }
 applyMixins(DigitalOceanProvider, [HasAuth]);

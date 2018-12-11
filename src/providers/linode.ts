@@ -1,10 +1,10 @@
 import * as Linode from 'linode-api-node';
-import { delay, getRandomProxyData, propmtPromise, applyMixins} from '../utils';
-const randomstring = require('randomstring');
+import { delay, getRandomProxyData, applyMixins} from '../utils';
+import * as randomstring from 'randomstring';
 import * as waitPort from 'wait-port';
 import * as node_ssh from 'node-ssh';
 import { Config } from '../models';
-import { Provider, HasAuth } from './interfaces';
+import { Provider, HasAuth } from './provider';
 import { Proxy } from '../proxy';
 
 export class LinodeProvider implements Provider, HasAuth {
@@ -44,7 +44,7 @@ export class LinodeProvider implements Provider, HasAuth {
   
       if (retries == 0) {
         return null;
-      };
+      }
   
       return this.createInstance(dropletName, retries - 1);
     }
@@ -114,7 +114,6 @@ export class LinodeProvider implements Provider, HasAuth {
 
       try {
         const conf: string = this.getSquidConfig(this.config, port);
-    
         console.log(`${dropletName} | Setting up droplet`);
 
         let result = await ssh.execCommand(
@@ -128,13 +127,13 @@ export class LinodeProvider implements Provider, HasAuth {
           iptables -I INPUT -p tcp --dport ${port} -j ACCEPT &&
           iptables-save`, { cwd:'~' }
         );
-        console.log(`${dropletName} | Finished setup id: ${id} with ip: ${ip}`);
       } catch (err) {
         console.log(`${dropletName} | Failed to execute ssh command: ${err}`)
         throw err;
       }
 
-      return this.createProxy(ip, port, proxyUsername, proxyPassword);
+      console.log(`${dropletName} | Finished setup id: ${id} with ip: ${ip}`);
+      return this.createProxy(this.config, ip, port, proxyUsername, proxyPassword);
 
     } catch (err) {
       console.log(`${err}`);
@@ -143,7 +142,7 @@ export class LinodeProvider implements Provider, HasAuth {
   }
 
   getSquidConfig: (config, port) => ''
-  createProxy: (ip, port, proxyUsername, proxyPassword) => Proxy
+  createProxy: (config, ip, port, proxyUsername, proxyPassword) => Proxy
 
 };
 applyMixins(LinodeProvider, [HasAuth]);

@@ -14,7 +14,7 @@ export const delay = (ms) => {
   });
 };
 
-export const propmtPromise = (settings: [any]) => {
+export const promptPromise = (settings: [any]) => {
   return new Promise((res, rej) => {
     prompt.get(settings, (err, results) => {
       if (err) {
