@@ -48,7 +48,6 @@ export class DigitalOceanProvider implements Provider, HasAuth {
   
   async waitForCreation(id: string) {
     var status = '';
-    let ip;
     var response;
     while (status !== 'active') {
       try {

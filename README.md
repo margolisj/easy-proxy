@@ -2,10 +2,8 @@
 Creates proxies on multiple web service providers.
 
 ## Todo
-* Fix Digital Ocean
-* Test tagging with DO from config
+* Add ability to track each task or spit out list while it ends
 * Have get status pull tags and find number of each tag per provider
-* Add other scripts to npm package
 * Providers
   * Google Cloud Engine
   * AWS

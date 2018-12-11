@@ -7,9 +7,12 @@
     "clean": "rm -rf dist/*",
     "start": "ts-node src/main.ts",
     "test": "mocha --opts ./mocha.opts",
-    "status": "ts-node src/scripts/get_status.ts",
+    
+    "status": "ts-node src/scripts/providersStatus.ts",
 
     "do:delete": "ts-node src/scripts/do_delete.ts",
+    "do:regions": "ts-node src/scripts/do_regions.ts",
+    "do:sshKeys": "ts-node src/scripts/do_sshKeys.ts",
 
     "linode:delete": "ts-node src/scripts/linode_delete.ts"
   },
