@@ -1,26 +1,40 @@
 # easy-proxy
-Creates proxies on hosts
+Creates proxies on multiple web service providers.
 
 ## Todo
-* Features
+* Fix Digital Ocean
+* Test tagging with DO from config
+* Have get status pull tags and find number of each tag per provider
+* Add other scripts to npm package
+* Providers
+  * Google Cloud Engine
+  * AWS
+  * Rackspace
+  * Vultr
+* Errors
+  * Linode - Figure out 408 - {"errors":[{"reason":"Please try again"}]} - on create node
+  * DO and Linode: Error: Timed out while waiting for handshake - on ssh connection
+* Other
   * Update example config
   * Finish tester
     * Figure out why some aren't working
     * Sites
       * Shopfy / Kith
       * Footsites
-  * Test tagging with DO from config
-  * Add google aka GCE
-* Errors
-  * Linode - Figure out 408 - {"errors":[{"reason":"Please try again"}]} - on create node
-  * DO and Linode: Error: Timed out while waiting for handshake - on ssh connection
-* Longterm
-  * IP Auth squid config
+
+## Working
+* Linode
+  * No Auth - Last tested successfully 12/11/18
+  * Userpass - Last tested successfully 12/11/18
+  * IP Auth - Last tested successfully 12/11/18
+* DigitalOcean
+  * No Auth - Last tested successfully 12/11/18
+  * Userpass - Last tested successfully 12/11/18
+  * IP Auth - Last tested successfully 12/11/18
 
 ## Installation
 
 ### Setup:
-
 Configure information inside the `config.example.json` be sure to rename it to `config.json` or simply run `mv config.example.json config.json` (macOS & Windows) when you're done.
 
 Example curl with auth:
@@ -62,5 +76,5 @@ $  curl -x http://104.236.214.154:3128/ -L supremenewyork.com
 
 
 ## Old Config Links
-* https://gist.githubusercontent.com/margolisj/ff35ff91df747e5917174d7cca0cf769/raw/4f7296169a9b081998103fdedb41cc2e9281c648/conf'
-* https://gist.githubusercontent.com/margolisj/8b2cfd84f8ad7d3ddf1743c8046fe680/raw/7a57321da876cca76ae8e19e76fdf1264aad6cf9/squid_conf_with_auth.conf'
+* https://gist.githubusercontent.com/margolisj/ff35ff91df747e5917174d7cca0cf769/raw/4f7296169a9b081998103fdedb41cc2e9281c648/conf
+* https://gist.githubusercontent.com/margolisj/8b2cfd84f8ad7d3ddf1743c8046fe680/raw/7a57321da876cca76ae8e19e76fdf1264aad6cf9/squid_conf_with_auth.conf

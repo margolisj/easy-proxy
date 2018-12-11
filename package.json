@@ -1,22 +1,31 @@
 {
   "name": "easy-proxy",
-  "version": "2.0.0",
+  "version": "2.0.2",
   "main": "main.js",
   "scripts": {
-    "test": "mocha -r ts-node/register src/**/*.spec.ts",
-    "start": "ts-node src/main.ts",
+    "build": "tsc",
     "clean": "rm -rf dist/*",
-    "build": "tsc"
+    "start": "ts-node src/main.ts",
+    "test": "mocha --opts ./mocha.opts",
+    "status": "ts-node src/scripts/get_status.ts",
+
+    "do:delete": "ts-node src/scripts/do_delete.ts",
+
+    "linode:delete": "ts-node src/scripts/linode_delete.ts"
   },
   "devDependencies": {
-    "@types/node": "^10.5.8",
+    "@types/chai": "^4.1.7",
+    "@types/mocha": "^5.2.5",
+    "@types/node": "^10.11.4",
     "@types/request": "^2.47.1",
     "@types/request-promise-native": "^1.0.15",
+    "chai": "^4.2.0",
+    "mocha": "^5.2.0",
     "ts-node": "^7.0.1",
-    "typescript": "^3.0.1"
+    "typescript": "^3.1.1"
   },
   "dependencies": {
-    "do-wrapper": "^3.14.3",
+    "do-wrapper": "^3.15.1",
     "linode-api-node": "^1.2.2",
     "node-ssh": "^5.1.2",
     "prompt": "^1.0.0",
