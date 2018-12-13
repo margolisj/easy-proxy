@@ -7,6 +7,8 @@
     "clean": "rm -rf dist/*",
     "start": "ts-node src/main.ts",
     "test": "mocha --opts ./mocha.opts",
+
+    "tester": "ts-node src/tester.ts",
     
     "status": "ts-node src/scripts/providersStatus.ts",
 

@@ -2,7 +2,7 @@
 Creates proxies on multiple web service providers.
 
 ## Todo
-* Add ability to track each task or spit out list while it ends
+* Add ability to track each task or spit out list while it ends, some JS UI
 * Have get status pull tags and find number of each tag per provider
 * Providers
   * Google Cloud Engine
@@ -29,6 +29,7 @@ Creates proxies on multiple web service providers.
   * No Auth - Last tested successfully 12/11/18
   * Userpass - Last tested successfully 12/11/18
   * IP Auth - Last tested successfully 12/11/18
+  
 
 ## Installation
 

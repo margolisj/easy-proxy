@@ -1,5 +1,5 @@
 import { Proxy, PrintStyle } from "./proxy";
-let rp = require('request-promise-native');
+import * as rp from 'request-promise-native';
 
 interface Site {
   name: string,
@@ -7,40 +7,81 @@ interface Site {
   test(html:string): boolean;
 };
 
-let nikeSnkrs: Site = {
-  name: 'Snkrs Api',
-  url: 'https://api.nike.com/',
-  test: (html) => {
-    return true;
-  }
-};
+// const nikeSnkrs: Site = {
+//   name: 'Snkrs Api',
+//   url: 'https://api.nike.com/',
+//   test: (html) => {
+//     return true;
+//   }
+// };
 
-let supreme: Site = {
+const supreme: Site = {
   name: 'Supreme',
-  url: 'http://supremenewyork.com',
+  url: 'https://supremenewyork.com',
   test: (html) => true
 };
 
-let google: Site = {
+const google: Site = {
   name: 'Google',
-  url: 'http://google.com',
+  url: 'https://google.com',
   test: (html) => true
 };
 
-let proxies: Array<Proxy> = [
-  // '174.138.49.206:6138:juhlaeu:vqekbcvjhwnngh', // DO
-  '139.162.237.157:3538:fpitfqa:jmxwztpzcgqrny', //Linode
-  // '109.74.199.143:6132', //Linode
+const footpatrol: Site = {
+  name: 'Footpatrol',
+  url: 'https://www.footpatrol.com/',
+  test: (html) => true
+};
+
+const footaction: Site = {
+  name: 'Footaction',
+  url: 'https://www.footlocker.com/',
+  test: (html) => true
+};
+
+const footlocker: Site = {
+  name: 'Footlocker',
+  url: 'https://www.footlocker.com/',
+  test: (html) => true
+};
+
+const champs: Site = {
+  name: 'Champs',
+  url: 'https://www.champssports.com/',
+  test: (html) => true
+};
+
+const finishline: Site = {
+  name: 'FinishLine',
+  url: 'https://www.finishline.com/',
+  test: (html) => true
+};
+
+const yeezysupply: Site = {
+  name: 'YeezySupply',
+  url: 'https://yeezysupply.com/',
+  test: (html) => true
+};
+
+const proxies: Array<Proxy> = [
+  '142.93.184.221:4710',
 ].map(p => Proxy.parseProxy(p));
 
-let main = async () => {
 
+//https://teamswish.com
+
+let main = async () => {
   // let failed: Array<Proxy> = [];
   // let success: Array<Proxy> = [];
   let testSites: Array<Site> = [
-    nikeSnkrs,
     supreme,
-    google
+    // google,
+    footpatrol,
+    footaction,
+    footlocker,
+    champs,
+    finishline,
+    yeezysupply
   ];
 
   // let results: Map<string, Array<any>> = new Map();
