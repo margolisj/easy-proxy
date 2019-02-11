@@ -3,6 +3,8 @@ Creates proxies on multiple web service providers.
 
 ## Todo
 * Add ability to track each task or spit out list while it ends, some JS UI
+  * https://www.npmjs.com/package/clui
+  * https://github.com/cronvel/terminal-kit
 * Have get status pull tags and find number of each tag per provider
 * Providers
   * Google Cloud Engine
@@ -67,13 +69,14 @@ $  curl -x http://104.236.214.154:3128/ -L supremenewyork.com
 
 ## Useful Documentation
 * Digital Ocean
-** https://github.com/matt-major-zz/do-wrapper/blob/master/docs/do-wrapper.md
-** https://developers.digitalocean.com/documentation/v2/#create-a-new-droplet
+  * https://github.com/matt-major-zz/do-wrapper/blob/master/docs/do-wrapper.md
+  * https://developers.digitalocean.com/documentation/v2/#create-a-new-droplet
 * Node
-** https://github.com/steelbrain/node-ssh
-** request-native proxy: https://github.com/request/request-promise/issues/130
+  * https://github.com/steelbrain/node-ssh
+  * request-native proxy: https://github.com/request/request-promise/issues/130
+* Linode
+  * https://developers.linode.com/api/v4#operation/getRegions
 
-
-## Old Config Links
+### Old Config Links
 * https://gist.githubusercontent.com/margolisj/ff35ff91df747e5917174d7cca0cf769/raw/4f7296169a9b081998103fdedb41cc2e9281c648/conf
 * https://gist.githubusercontent.com/margolisj/8b2cfd84f8ad7d3ddf1743c8046fe680/raw/7a57321da876cca76ae8e19e76fdf1264aad6cf9/squid_conf_with_auth.conf

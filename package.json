@@ -7,15 +7,11 @@
     "clean": "rm -rf dist/*",
     "start": "ts-node src/main.ts",
     "test": "mocha --opts ./mocha.opts",
-
     "tester": "ts-node src/tester.ts",
-    
     "status": "ts-node src/scripts/providersStatus.ts",
-
     "do:delete": "ts-node src/scripts/do_delete.ts",
     "do:regions": "ts-node src/scripts/do_regions.ts",
     "do:sshKeys": "ts-node src/scripts/do_sshKeys.ts",
-
     "linode:delete": "ts-node src/scripts/linode_delete.ts"
   },
   "devDependencies": {
@@ -38,6 +34,7 @@
     "request": "^2.88.0",
     "request-promise": "^4.2.2",
     "request-promise-native": "^1.0.5",
+    "terminal-kit": "^1.26.8",
     "wait-port": "^0.2.2"
   }
 }

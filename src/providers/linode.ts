@@ -136,7 +136,7 @@ export class LinodeProvider implements Provider, HasAuth {
       return this.createProxy(this.config, ip, port, proxyUsername, proxyPassword);
 
     } catch (err) {
-      console.log(`${err}`);
+      console.log(`${dropletName} | Error: ${err}`);
       return new Proxy ('', '');
     }
   }
@@ -145,4 +145,5 @@ export class LinodeProvider implements Provider, HasAuth {
   createProxy: (config, ip, port, proxyUsername, proxyPassword) => Proxy
 
 };
+
 applyMixins(LinodeProvider, [HasAuth]);

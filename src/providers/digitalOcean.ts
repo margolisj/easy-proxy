@@ -100,28 +100,34 @@ export class DigitalOceanProvider implements Provider, HasAuth {
         console.log('Error connecting to SSH.')
         throw err;
       }
-
       console.log(`${dropletName} | Connected to droplet`);
+
       const conf: string = this.getSquidConfig(this.config, port);
+
       console.log(`${dropletName} | Setting up droplet`);
+      try {
+        let result = await ssh.execCommand(
+          `yum install squid httpd-tools wget -y &&
+          touch /etc/squid/passwd &&
+          htpasswd -b /etc/squid/passwd ${proxyUsername} ${proxyPassword} &&
+          conf="${conf}" &&
+          echo "$conf" > /etc/squid/squid.conf &&
+          touch /etc/squid/blacklist.acl &&
+          systemctl restart squid.service && systemctl enable squid.service &&
+          iptables -I INPUT -p tcp --dport ${port} -j ACCEPT &&
+          iptables-save`, { cwd:'~' }
+        );
+        console.log(`${dropletName} | Finished setup id: ${id} with ip: ${ip}`);
+      } catch (err) {
+        console.log(`${dropletName} | Failed to execute ssh command: ${err}`)
+        throw err;
+      }
 
-      let result = await ssh.execCommand(
-        `yum install squid httpd-tools wget -y &&
-        touch /etc/squid/passwd &&
-        htpasswd -b /etc/squid/passwd ${proxyUsername} ${proxyPassword} &&
-        conf="${conf}" &&
-        echo "$conf" > /etc/squid/squid.conf &&
-        touch /etc/squid/blacklist.acl &&
-        systemctl restart squid.service && systemctl enable squid.service &&
-        iptables -I INPUT -p tcp --dport ${port} -j ACCEPT &&
-        iptables-save`, { cwd:'~' }
-      );
       console.log(`${dropletName} | Finished setup id: ${id} with ip: ${ip}`);
-
       return this.createProxy(this.config, ip, port, proxyUsername, proxyPassword);
 
     } catch (err) {
-      console.log(`${dropletName} | Error ${err}`);
+      console.log(`${dropletName} | Error: ${err}`);
       return new Proxy('', '');
     }
   }
@@ -129,4 +135,5 @@ export class DigitalOceanProvider implements Provider, HasAuth {
   getSquidConfig: (config, port) => ''
   createProxy: (config, ip, port, proxyUsername, proxyPassword) => Proxy
 }
+
 applyMixins(DigitalOceanProvider, [HasAuth]);
